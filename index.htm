@@ -120,127 +120,23 @@ button:active{transform:scale(0.98)}
 
 <div class="card">
   <div id="qTitle"></div>
-  <input id="answer" placeholder="הקלד תשובה">
+  <input id="answer" placeholder="הקלד קוד חדר">
   <br>
-  <button onclick="check()">בדוק</button>
+  <button onclick="check()">כניסה</button>
 
-  <div id="msg"></div>
-  <div id="roomCode">קוד החדר: </div>
+
 </div>
 
-<button onclick="openAdmin()">⚙️ מפעיל</button>
-<div id="admin" class="hidden"></div>
-
 <script>
-let rooms = {
-  1:{
-    title:"חדר 1 – ההמראה והטיסה",
-    code:"6027",
-    questions:[
-      {ans:"6",  next:"חפשו על הלוח"},
-      {ans:"24", next:"מתחת לשולחן המורה"},
-      {ans:"60", next:"ליד החלון"},
-      {ans:"39", next:"על מפת הירח"},
-      {ans:"53", next:"מאחורי הדלת"},
-      {ans:"5",  next:"בפינת הקריאה"},
-      {ans:"241563", next:"על המדף"},
-      {ans:"6",  next:"מאחורי הכיסא"},
-      {ans:"79", next:"בואו למחשב"}
-    ]
-  },
-  2:{
-    title:"חדר 2 – Gateway והנחיתה",
-    code:"9945",
-    questions:[
-      {ans:"4", next:"על השולחן המרכזי"},
-      {ans:"20", next:"ליד הפח"},
-      {ans:"24", next:"על הקיר"},
-      {ans:"55", next:"מתחת לחלון"},
-      {ans:"60", next:"בארון"},
-      {ans:"314256", next:"על הרצפה"},
-      {ans:"64", next:"על התיק"},
-      {ans:"80", next:"מאחורי הווילון"},
-      {ans:"9", next:"הגעתם לסיום"}
-    ]
-  }
-};
-
-let room = 1;
-let qIndex = 0;
-
-loadRoom(1);
-
-function loadRoom(r){
-  room = r;
-  qIndex = 0;
-  roomTitle.textContent = rooms[r].title;
-  roomCode.textContent = "קוד החדר: ";
-  showQuestion();
-}
-
-function showQuestion(){
-  qTitle.textContent = "חידה " + (qIndex + 1);
-  answer.value = "";
-  msg.textContent = "";
-}
-
-function check(){
-  let v = answer.value.trim();
-  let q = rooms[room].questions[qIndex];
-
-  if(v === q.ans){
-    msg.className="ok";
-    if(qIndex < 8){
-      msg.textContent="✔ נכון! עכשיו: " + q.next;
-      qIndex++;
-      setTimeout(showQuestion,1500);
-    }else{
-      msg.textContent="🎉 סיימתם את החדר!";
-      roomCode.textContent="קוד החדר: " + rooms[room].code;
-
-      if(room === 1){
-        setTimeout(()=>loadRoom(2),3000);
-      }
+  function check(){
+    let a = document.getelementbyid(answer).value
+    if a == "yuvalimroom1ron"{
+      window.location = "play2.html"
     }
-  }else{
-    msg.className="bad";
-    msg.textContent="❌ לא נכון, נסו שוב";
+    else if a=="Sa1"{
+      window.location = "play1.html"
+    }
   }
-}
-
-/* ===== אדמין ===== */
-function openAdmin(){
-  if(prompt("סיסמת מפעיל:")==="RDRartemis2"){
-    admin.classList.toggle("hidden");
-    buildAdmin();
-  }
-}
-
-function buildAdmin(){
-  admin.innerHTML="<h3>עריכת חדר "+room+"</h3>";
-  rooms[room].questions.forEach((q,i)=>{
-    admin.innerHTML+=`
-      חידה ${i+1}<br>
-      תשובה: <input id="a${i}" value="${q.ans}">
-      מיקום הבא: <input id="n${i}" value="${q.next}">
-      <hr>
-    `;
-  });
-  admin.innerHTML+=`
-    קוד חדר: <input id="code" value="${rooms[room].code}">
-    <br><br>
-    <button onclick="save()">שמור</button>
-  `;
-}
-
-function save(){
-  rooms[room].questions.forEach((q,i)=>{
-    q.ans=document.getElementById("a"+i).value.trim();
-    q.next=document.getElementById("n"+i).value.trim();
-  });
-  rooms[room].code=document.getElementById("code").value.trim();
-  alert("נשמר ✔️");
-}
 </script>
 
 </body>
