@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<title>משימת ארטמיס</title>
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:radial-gradient(circle at top, #02142b, #000);
+  color:#e6faff;
+  font-family:Arial, sans-serif;
+  direction:rtl;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+h1{
+  margin:15px 0 5px;
+  font-size:clamp(1.6rem,4vw,2.4rem);
+}
+h2{
+  margin:0 0 15px;
+  color:#ffd700;
+  font-size:clamp(1.1rem,3vw,1.5rem);
+}
+
+.card{
+  width:95%;
+  max-width:420px;
+  background:linear-gradient(180deg,#0b1a33,#050b18);
+  border:2px solid #0ff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 0 25px #0ff3;
+}
+
+#qTitle{
+  font-size:clamp(1.1rem,3vw,1.4rem);
+  margin-bottom:10px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  font-size:clamp(1rem,3vw,1.3rem);
+  border-radius:10px;
+  border:none;
+  text-align:center;
+  outline:none;
+}
+
+button{
+  width:100%;
+  margin-top:15px;
+  padding:12px;
+  font-size:clamp(1rem,3vw,1.2rem);
+  background:linear-gradient(90deg,#00f6ff,#00ffa2);
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+button:active{transform:scale(0.98)}
+
+#msg{
+  margin-top:12px;
+  min-height:1.5em;
+  font-size:clamp(1rem,3vw,1.2rem);
+}
+
+#roomCode{
+  margin-top:15px;
+  padding:10px;
+  border-radius:10px;
+  background:#000;
+  border:1px dashed #ffd700;
+  font-size:clamp(1rem,3vw,1.2rem);
+}
+
+.ok{color:#7CFF7C}
+.bad{color:#FF6B6B}
+
+#admin{
+  width:95%;
+  max-width:600px;
+  margin-top:30px;
+  padding:15px;
+  background:#020816;
+  border:2px solid #0ff;
+  border-radius:14px;
+}
+
+#admin input{
+  margin:4px 0 10px;
+}
+
+.hidden{display:none}
+
+/* טאבלט */
+@media (min-width:768px){
+  .card{max-width:480px}
+}
+
+/* מחשב */
+@media (min-width:1024px){
+  .card{max-width:520px}
+}
+</style>
+</head>
+
+<body>
+
+<h1>🚀 משימת ארטמיס</h1>
+<h2 id="roomTitle"></h2>
+
+<div class="card">
+  <div id="qTitle"></div>
+  <input id="answer" placeholder="הקלד תשובה">
+  <br>
+  <button onclick="check()">בדוק</button>
+
+  <div id="msg"></div>
+  <div id="roomCode">קוד החדר: </div>
+</div>
+
+<button onclick="openAdmin()">⚙️ מפעיל</button>
+<div id="admin" class="hidden"></div>
+
+<script>
+let rooms = {
+  1:{
+    title:"חדר 1",
+    code:"6027",
+    questions:[
+      {ans:"6",  next:"חפשו על הלוח"},
+      {ans:"24", next:"מתחת לשולחן המורה"},
+      {ans:"60", next:"ליד החלון"},
+      {ans:"39", next:"על מפת הירח"},
+      {ans:"53", next:"מאחורי הדלת"},
+      {ans:"5",  next:"בפינת הקריאה"},
+    ]
+  },
+  2:{
+    title:"חדר 2",
+    code:"9945",
+    questions:[
+      {ans:"4", next:"על השולחן המרכזי"},
+      {ans:"20", next:"ליד הפח"},
+      {ans:"24", next:"על הקיר"},
+      {ans:"55", next:"מתחת לחלון"},
+      {ans:"60", next:"בארון"},
+      {ans:"314256", next:"על הרצפה"},
+    ]
+  }
+};
+
+let room = 1;
+let qIndex = 0;
+
+loadRoom(1);
+
+function loadRoom(r){
+  room = r;
+  qIndex = 0;
+  roomTitle.textContent = rooms[r].title;
+  roomCode.textContent = "קוד החדר: ";
+  showQuestion();
+}
+
+function showQuestion(){
+  qTitle.textContent = "חידה " + (qIndex + 1);
+  answer.value = "";
+  msg.textContent = "";
+}
+
+function check(){
+  let v = answer.value.trim();
+  let q = rooms[room].questions[qIndex];
+
+  if(v === q.ans){
+    msg.className="ok";
+    if(qIndex < 8){
+      msg.textContent="✔ נכון! עכשיו: " + q.next;
+      qIndex++;
+      setTimeout(showQuestion,1500);
+    }else{
+      msg.textContent="🎉 סיימתם את החדר!";
+      roomCode.textContent="קוד החדר: " + rooms[room].code;
+
+      if(room === 1){
+        setTimeout(()=>loadRoom(2),3000);
+      }
+    }
+  }else{
+    msg.className="bad";
+    msg.textContent="❌ לא נכון, נסו שוב";
+  }
+}
+
+/* ===== אדמין ===== */
+function openAdmin(){
+  if(prompt("סיסמת מפעיל:")==="ronakerman77"){
+    admin.classList.toggle("hidden");
+    buildAdmin();
+  }
+}
+
+function buildAdmin(){
+  admin.innerHTML="<h3>עריכת חדר "+room+"</h3>";
+  rooms[room].questions.forEach((q,i)=>{
+    admin.innerHTML+=`
+      חידה ${i+1}<br>
+      תשובה: <input id="a${i}" value="${q.ans}">
+      מיקום הבא: <input id="n${i}" value="${q.next}">
+      <hr>
+    `;
+  });
+  admin.innerHTML+=`
+    קוד חדר: <input id="code" value="${rooms[room].code}">
+    <br><br>
+    <button onclick="save()">שמור</button>
+  `;
+}
+
+function save(){
+  rooms[room].questions.forEach((q,i)=>{
+    q.ans=document.getElementById("a"+i).value.trim();
+    q.next=document.getElementById("n"+i).value.trim();
+  });
+  rooms[room].code=document.getElementById("code").value.trim();
+  alert("נשמר ✔️");
+}
+</script>
+
+</body>
+</html>
