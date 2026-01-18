@@ -112,9 +112,21 @@ button:active{transform:scale(0.98)}
 }
 </style>
 </head>
+<h1>🚀 משימת ארטמיס</h1>
+<h2 id="roomTitle"></h2>
 
-<body>
-  <h1>לא תקף</h1>
+<div class="card">
+  <div id="qTitle"></div>
+  <input id="answer" placeholder="הקלד תשובה">
+  <br>
+  <button onclick="check()">בדוק</button>
+
+  <div id="msg"></div>
+  <div id="roomCode">קוד החדר: </div>
+</div>
+
+<button onclick="openAdmin()">⚙️ מפעיל</button>
+<div id="admin" class="hidden"></div>
 <script>
 let rooms = {
   1:{
