@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Space Olimpic - Player</title>
+    <title>Space Olimpic - Crew Member</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap"
         rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -14,102 +15,58 @@
 
     <style>
         :root {
-            --bg-deep: #030510;
+            --bg-deep: #050816;
+            --bg-mid: #0a0f1c;
             --accent: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.4);
+            --gold: #ffd700;
+            --success: #10b981;
+            --danger: #ef4444;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
             --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
-            background: #0a0f1c;
-            color: white;
+            padding: 0;
+        }
+
+        body {
             font-family: 'Inter', sans-serif;
-            height: 100vh;
+            background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-mid) 50%, #0d1225 100%);
+            color: var(--text);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow-x: hidden;
+            position: relative;
             text-align: center;
         }
 
+        /* Screen Transitions */
         .screen {
             display: none;
-            height: 100%;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 24px;
-            animation: fadeIn 0.3s ease-out;
+            height: 100vh;
+            z-index: 10;
         }
 
         .screen.active {
             display: flex;
-        }
-
-        /* Inputs */
-        input {
-            width: 100%;
-            padding: 20px;
-            margin: 10px 0;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            color: white;
-            font-size: 1.2rem;
-            text-align: center;
-            font-family: 'Orbitron', sans-serif;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: var(--accent);
-            background: rgba(0, 212, 255, 0.1);
-        }
-
-        button {
-            width: 100%;
-            padding: 18px;
-            margin-top: 20px;
-            background: white;
-            color: #030510;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: transform 0.2s var(--spring);
-        }
-
-        button:active {
-            transform: scale(0.95);
-        }
-
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--accent);
-            margin-bottom: 40px;
-        }
-
-        /* Wait Screen */
-        .wait-anim {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(0, 212, 255, 0.3);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s infinite linear;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            animation: fadeIn 0.5s var(--spring);
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
 
             to {
@@ -117,99 +74,282 @@
                 transform: translateY(0);
             }
         }
+
+        /* Inputs & Buttons */
+        input {
+            width: 100%;
+            padding: 18px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            font-family: inherit;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            background: rgba(0, 212, 255, 0.05);
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+            color: #030510;
+            border: none;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s var(--spring);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            font-family: 'Orbitron';
+        }
+
+        /* Puzzle Elements */
+        #puzzleCard {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .msg {
+            min-height: 1.5em;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .msg.ok {
+            color: var(--success);
+        }
+
+        .msg.bad {
+            color: var(--danger);
+        }
+
+        /* Parallax & HUD */
+        .stars-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .stars-layer {
+            position: absolute;
+            inset: -50px;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .star-small {
+            width: 1px;
+            height: 1px;
+            opacity: 0.4;
+        }
+
+        .star-large {
+            width: 2px;
+            height: 2px;
+            opacity: 0.8;
+            box-shadow: 0 0 5px var(--accent);
+        }
+
+        .cockpit-frame {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.8);
+        }
+
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 6;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 212, 255, 0.01) 2px, rgba(0, 212, 255, 0.01) 4px);
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- Join Screen -->
+    <!-- Parallax background -->
+    <div class="stars-container">
+        <div class="stars-layer" id="starsBack" data-speed="0.02"></div>
+        <div class="stars-layer" id="starsFront" data-speed="0.05"></div>
+    </div>
+    <div class="cockpit-frame"></div>
+    <div class="scanlines"></div>
+
+    <!-- Screen 1: Join -->
     <div id="joinScreen" class="screen active">
         <h1>JOIN MISSION</h1>
-        <input type="text" id="nameInput" placeholder="Enter Name">
-        <input type="text" id="codeInput" placeholder="Room Code">
-        <button onclick="joinGame()">BLAST OFF</button>
+        <div id="puzzleCard">
+            <input type="text" id="nameInput" placeholder="Enter Name">
+            <input type="text" id="codeInput" placeholder="Mission Code">
+            <button onclick="joinGame()">BLAST OFF 🚀</button>
+        </div>
     </div>
 
-    <!-- Waiting Screen -->
+    <!-- Screen 2: Waiting -->
     <div id="waitScreen" class="screen">
-        <div class="wait-anim"></div>
-        <h2>You're in!</h2>
-        <p>See your name on the screen?</p>
+        <div style="font-size: 3rem; margin-bottom: 20px;">🛰️</div>
+        <h1>WAITING...</h1>
+        <p>Prepare the cockpit. We launch soon.</p>
     </div>
 
-    <!-- Game Screen -->
-    <div id="gameScreen" class="screen">
-        <div id="answerInputArea">
-            <h2>Enter Answer</h2>
-            <input type="text" id="answerInput" placeholder="Type answer...">
-            <button onclick="submitAnswer()">SEND</button>
-        </div>
-        <div id="answerSent" style="display:none">
-            <h2>Answer Sent!</h2>
-            <p>Wait for results...</p>
+    <!-- Screen 3: Puzzles -->
+    <div id="puzzleScreen" class="screen">
+        <div id="puzzleCard">
+            <h2 id="qTitle">PUZZLE 1</h2>
+            <p id="qDesc" style="margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted);"></p>
+            <input type="text" id="answerInput" placeholder="Type answer..." autocomplete="off">
+            <button onclick="handleCheck()">SUBMIT 🛸</button>
+            <div id="msg" class="msg"></div>
         </div>
     </div>
 
-    <!-- Finished Screen -->
+    <!-- Screen 4: Finished -->
     <div id="endScreen" class="screen">
-        <h1>GAME OVER</h1>
-        <p>Check the main screen for results!</p>
+        <div style="font-size: 4rem; margin-bottom: 20px;">🏆</div>
+        <h1>MISSION COMPLETE</h1>
+        <p>Check the leaderboard on the main screen!</p>
     </div>
 
     <script src="firebase-config.js"></script>
     <script src="game-manager.js"></script>
 
     <script>
-        // Check URL for code
+        // Puzzle Data (Unified from play1/play2)
+        const allQuestions = [
+            { ans: "30", hint: "Search the board" },
+            { ans: "moon", hint: "Under teacher's desk" },
+            { ans: "12", hint: "By the window" },
+            { ans: "24", hint: "Behind the door" },
+            { ans: "20", hint: "In reading corner" },
+            { ans: "80", hint: "On the shelf" },
+            { ans: "8", hint: "Behind the chair" },
+            { ans: "41", hint: "Check the computer" },
+            { ans: "72", hint: "Main desk" },
+            { ans: "space", hint: "In the closet" }
+        ];
+
+        let qIndex = 0;
+        let score = 0;
+
+        // Auto-fill from URL
         const params = new URLSearchParams(window.location.search);
-        if (params.has('code')) {
-            document.getElementById('codeInput').value = params.get('code');
-            document.getElementById('codeInput').disabled = true; // Optional: Lock it
+        if (params.has('code')) document.getElementById('codeInput').value = params.get('code');
+
+        // Stars setup
+        function createStars(container, count, className) {
+            for (let i = 0; i < count; i++) {
+                const s = document.createElement('div');
+                s.className = `star ${className}`;
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                container.appendChild(s);
+            }
         }
+        createStars(document.getElementById('starsBack'), 50, 'star-small');
+        createStars(document.getElementById('starsFront'), 20, 'star-large');
 
         async function joinGame() {
             const name = document.getElementById('nameInput').value.trim();
             const code = document.getElementById('codeInput').value.trim();
-
-            if (!name || !code) return alert("Enter name and code!");
+            if (!name || !code) return alert("Missing info!");
 
             try {
                 await gameManager.joinRoom(code, name);
                 showScreen('waitScreen');
 
-                // Listen for game starts
                 gameManager.listenToGameState((state) => {
-                    if (state.status === 'playing') {
-                        showScreen('gameScreen');
-                        // Reset answer state for new question
-                        document.getElementById('answerInputArea').style.display = 'block';
-                        document.getElementById('answerSent').style.display = 'none';
-                        document.getElementById('answerInput').value = '';
-                        document.getElementById('answerInput').focus();
-                    } else if (state.status === 'finished') {
-                        showScreen('endScreen');
-                    }
+                    if (state.status === 'playing') showScreen('puzzleScreen');
+                    if (state.status === 'finished') showScreen('endScreen');
                 });
+            } catch (e) { alert(e.message); }
+        }
 
-            } catch (e) {
-                alert("Error joining: " + e.message);
+        function handleCheck() {
+            const val = document.getElementById('answerInput').value.trim().toLowerCase();
+            const q = allQuestions[qIndex];
+            const msg = document.getElementById('msg');
+
+            if (val === q.ans.toLowerCase()) {
+                msg.className = "msg ok";
+                msg.textContent = "✔ CORRECT!";
+                score += 100;
+                qIndex++;
+
+                // Sync progress
+                gameManager.updateProgress(qIndex, score);
+
+                if (qIndex < allQuestions.length) {
+                    setTimeout(() => {
+                        msg.textContent = "";
+                        document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
+                        document.getElementById('qDesc').textContent = q.hint;
+                        document.getElementById('answerInput').value = "";
+                    }, 1500);
+                } else {
+                    gameManager.setPlayerFinished();
+                    showScreen('endScreen');
+                }
+            } else {
+                msg.className = "msg bad";
+                msg.textContent = "❌ INCORRECT";
+                setTimeout(() => { msg.textContent = ""; }, 1500);
             }
         }
 
-        function submitAnswer() {
-            const ans = document.getElementById('answerInput').value.trim();
-            if (!ans) return;
-
-            gameManager.submitAnswer(ans);
-            document.getElementById('answerInputArea').style.display = 'none';
-            document.getElementById('answerSent').style.display = 'block';
-        }
-
         function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
+            if (id === 'puzzleScreen') {
+                document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
+                document.getElementById('qDesc').textContent = allQuestions[qIndex].hint;
+            }
         }
 
+        // Handle Enter key
+        document.getElementById('answerInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') handleCheck();
+        });
     </script>
 </body>
 

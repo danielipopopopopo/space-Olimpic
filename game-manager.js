@@ -86,27 +86,39 @@ class GameManager {
         return this.playerId;
     }
 
-    submitAnswer(answer, timeBonus = 0) {
+    async updateProgress(completedCount, score) {
         if (!this.roomCode || !this.playerId) return;
 
-        // We just record the answer. Validation happens on Host (or verified here if we shared answers)
-        // ideally, validation logic is shared or handled securely. 
-        // For this simple version, we'll send the answer to the answer bucket for the current question
-        return this.db.ref(`rooms/${this.roomCode}/players/${this.playerId}/currentAnswer`).set({
-            text: answer,
-            timestamp: Date.now()
+        return this.db.ref(`rooms/${this.roomCode}/players/${this.playerId}`).update({
+            completedCount: completedCount,
+            score: score,
+            lastUpdate: Date.now()
+        });
+    }
+
+    async setPlayerFinished() {
+        if (!this.roomCode || !this.playerId) return;
+        return this.db.ref(`rooms/${this.roomCode}/players/${this.playerId}`).update({
+            isFinished: true,
+            finishedTime: Date.now()
         });
     }
 
     listenToGameState(callback) {
         if (!this.roomCode) return;
-        this.db.ref(`rooms/${this.roomCode}`).on('value', (snapshot) => {
+        const ref = this.db.ref(`rooms/${this.roomCode}`);
+        ref.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 this.gameState = data;
                 callback(data);
             }
         });
+        return ref;
+    }
+
+    stopListening(ref) {
+        if (ref) ref.off();
     }
 }
 

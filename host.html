@@ -104,27 +104,59 @@
             height: 100%;
             padding: 40px;
             text-align: center;
+            overflow-y: auto;
         }
 
-        .timer-bar {
-            height: 8px;
-            background: var(--accent);
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            transition: width 1s linear;
-        }
-
-        .question-card {
+        .leaderboard-container {
             background: rgba(20, 30, 50, 0.8);
             backdrop-filter: blur(30px);
-            padding: 40px;
+            padding: 30px;
             border-radius: 24px;
-            margin: 40px auto;
+            margin: 20px auto;
             max-width: 900px;
             border: 1px solid rgba(0, 212, 255, 0.3);
             box-shadow: 0 0 50px rgba(0, 212, 255, 0.1);
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .leaderboard-table th {
+            text-align: right;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 1.2rem;
+        }
+
+        .progress-cell {
+            width: 60%;
+        }
+
+        .progress-bg {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.5s var(--spring);
+            box-shadow: 0 0 15px var(--accent);
         }
 
         h2 {
@@ -206,7 +238,7 @@
             display: block;
         }
 
-        .score {
+        .player-score {
             display: block;
             font-size: 0.9rem;
             opacity: 0.7;
@@ -249,9 +281,9 @@
             }
         }
 
-        /* Start Button */
+        /* Buttons */
         button {
-            margin-top: 40px;
+            margin-top: 20px;
             padding: 15px 40px;
             font-family: 'Orbitron', sans-serif;
             font-size: 1.2rem;
@@ -261,11 +293,23 @@
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            color: #030510;
+            font-weight: 900;
         }
 
         button:hover {
             transform: scale(1.05);
             box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+        }
+
+        .btn-end {
+            background: #ff4757;
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+        }
+
+        .btn-end:hover {
+            box-shadow: 0 0 40px rgba(255, 71, 87, 0.6);
         }
     </style>
 </head>
@@ -274,7 +318,7 @@
 
     <!-- Lobby View -->
     <div id="lobbyView">
-        <h1 style="font-family: 'Orbitron'; margin-bottom: 20px;">MISSION CONTROL</h1>
+        <h1 style="font-family: 'Orbitron'; margin-bottom: 20px; letter-spacing: 1rem;">MISSION CONTROL</h1>
         <div class="join-card">
             <div class="qr-container" id="qrcode"></div>
             <div class="room-info">
@@ -283,7 +327,7 @@
             </div>
         </div>
 
-        <h3 style="margin-top: 40px; opacity: 0.7;">CREW MEMBERS READY</h3>
+        <h3 style="margin-top: 40px; opacity: 0.7; font-family: 'Orbitron';">READY CREW MEMBERS</h3>
         <div id="playersList">
             <!-- Players will appear here -->
         </div>
@@ -293,16 +337,23 @@
 
     <!-- Game View -->
     <div id="gameView">
-        <div class="timer-bar" id="timerBar"></div>
-        <div class="question-card">
-            <h2 id="questionText">Preparing...</h2>
-            <div id="answersList">
-                <!-- Visual representation of players answering can go here -->
-            </div>
+        <h1 style="font-family: 'Orbitron'; margin-bottom: 10px;">MISSION STATUS</h1>
+        <div class="leaderboard-container">
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">CREW MEMBER</th>
+                        <th style="width: 50%;">PROGRESS</th>
+                        <th style="width: 20%;">SCORE</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <!-- Progress goes here -->
+                </tbody>
+            </table>
         </div>
-        <div id="stats">
-            <h2>Answers: <span id="answerCount">0</span></h2>
-        </div>
+
+        <button class="btn-end" onclick="endGame()">END MISSION 🛑</button>
     </div>
 
     <!-- Podium View -->
@@ -316,27 +367,17 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        // Game Logic
-        const questions = [
-            { text: "What is the name of the NASA mission to return to the Moon?", answer: "Artemis" },
-            { text: "Which planet is known as the Red Planet?", answer: "Mars" },
-            { text: "What fuel do rockets use? (General term)", answer: "Propellant" }
-            // Add more questions here or load from a file
-        ];
-
-        let currentQIndex = 0;
-        let connectedPlayers = [];
+        let connectedPlayers = {};
+        const totalPuzzles = 10; // Shared with player.html
 
         // Init
         async function initHost() {
-            // Check URL for game mode/ID
             const params = new URLSearchParams(window.location.search);
-            const gameType = params.get('game') || '1'; // Default to Game 1
+            const gameType = params.get('game') || '1';
 
             const code = await gameManager.createRoom(gameType);
             document.getElementById('roomCodeDisplay').innerText = code;
 
-            // Generate QR
             const url = `${window.location.origin}/player.html?code=${code}`;
             new QRCode(document.getElementById("qrcode"), {
                 text: url,
@@ -344,52 +385,57 @@
                 height: 150
             });
 
-            // Listen for players
+            // Listen for players & progress
             gameManager.listenToPlayers((players) => {
-                const list = document.getElementById('playersList');
-                list.innerHTML = '';
-                connectedPlayers = Object.entries(players);
-
-                connectedPlayers.forEach(([id, p]) => {
-                    const badge = document.createElement('div');
-                    badge.className = 'player-badge';
-                    badge.innerText = p.name;
-                    list.appendChild(badge);
-                });
+                connectedPlayers = players || {};
+                updateLobbyList();
+                updateLeaderboard();
             });
         }
         initHost();
+
+        function updateLobbyList() {
+            const list = document.getElementById('playersList');
+            if (document.getElementById('lobbyView').style.display === 'none') return;
+
+            list.innerHTML = '';
+            Object.values(connectedPlayers).forEach(p => {
+                const badge = document.createElement('div');
+                badge.className = 'player-badge';
+                badge.innerText = p.name;
+                list.appendChild(badge);
+            });
+        }
+
+        function updateLeaderboard() {
+            const tbody = document.getElementById('leaderboardBody');
+            if (document.getElementById('gameView').style.display === 'none') return;
+
+            // Sort by score
+            const sorted = Object.values(connectedPlayers).sort((a, b) => (b.score || 0) - (a.score || 0));
+
+            tbody.innerHTML = '';
+            sorted.forEach(p => {
+                const progress = ((p.completedCount || 0) / totalPuzzles) * 100;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="font-weight: 700;">${p.name} ${p.isFinished ? '✅' : ''}</td>
+                    <td class="progress-cell">
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                    </td>
+                    <td style="font-family: 'Orbitron'; color: var(--gold);">${p.score || 0}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
 
         function startGame() {
             document.getElementById('lobbyView').style.display = 'none';
             document.getElementById('gameView').style.display = 'block';
             gameManager.startGame();
-            runQuestion(0);
-        }
-
-        function runQuestion(index) {
-            if (index >= questions.length) {
-                endGame();
-                return;
-            }
-
-            const q = questions[index];
-            document.getElementById('questionText').innerText = q.text;
-            gameManager.nextQuestion(index);
-
-            // Simple Timer
-            const timerBar = document.getElementById('timerBar');
-            timerBar.style.width = '100%';
-            timerBar.style.transition = 'none';
-            setTimeout(() => {
-                timerBar.style.transition = 'width 10s linear';
-                timerBar.style.width = '0%';
-            }, 100);
-
-            // Wait for 10s then next
-            setTimeout(() => {
-                runQuestion(index + 1);
-            }, 11000);
+            updateLeaderboard();
         }
 
         function endGame() {
@@ -400,34 +446,19 @@
         }
 
         function showPodium() {
-            // Sort players by score (mock logic for now as scores aren't fully implemented in this MVP)
-            // Ideally gameManager would accumulate scores from answers
-
-            // Mock scores for demo
-            connectedPlayers.sort(() => 0.5 - Math.random());
-            const top3 = connectedPlayers.slice(0, 3);
+            const sorted = Object.values(connectedPlayers).sort((a, b) => (b.score || 0) - (a.score || 0));
+            const top3 = sorted.slice(0, 3);
 
             const podium = document.getElementById('podiumView');
             podium.innerHTML = '';
 
-            const orders = ['place-2', 'place-1', 'place-3']; // HTML order for flexbox center alignment
+            const orders = ['place-2', 'place-1', 'place-3'];
             const ranks = [2, 1, 3];
+            const mapping = [1, 0, 2];
 
-            // Map the sorted players to the visual podium slots
-            // Visual Slot 2 (Left) -> Rank 2
-            // Visual Slot 1 (Center) -> Rank 1
-            // Visual Slot 3 (Right) -> Rank 3
-
-            // We iterate 0..2 to fill visual slots.
-            // visual[0] is Left (Place 2)
-            // visual[1] is Center (Place 1)
-            // visual[2] is Right (Place 3)
-
-            const mapping = [1, 0, 2]; // Index in top3 array mapping to Left, Center, Right visual
-
-            mapping.forEach((playerIdx, i) => {
-                if (!top3[playerIdx]) return;
-                const p = top3[playerIdx][1];
+            mapping.forEach((idx, i) => {
+                const p = top3[idx];
+                if (!p) return;
                 const rank = ranks[i];
 
                 const div = document.createElement('div');
@@ -435,19 +466,17 @@
                 div.innerHTML = `
                     <span class="medal">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'}</span>
                     <span class="player-name">${p.name}</span>
-                    <span class="score">Score: ${Math.floor(Math.random() * 1000)}</span>
-                `; // Using mock score for display as answers logic is complex for this step
+                    <span class="player-score">${p.score || 0} PTS</span>
+                `;
                 podium.appendChild(div);
             });
 
-            // Trigger confetti
             confetti({
                 particleCount: 200,
                 spread: 100,
                 origin: { y: 0.6 }
             });
         }
-
     </script>
 </body>
 
