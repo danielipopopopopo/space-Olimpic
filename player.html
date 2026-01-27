@@ -360,7 +360,7 @@
         // Puzzle Data (Unified from play1/play2)
         const allQuestions = [
             { ans: "30", hint: "Search the board" },
-            { ans: "moon", hint: "Under teacher's desk" },
+            { ans: ["moon", "ירח"], hint: "Under teacher's desk" },
             { ans: "12", hint: "By the window" },
             { ans: "24", hint: "Behind the door" },
             { ans: "20", hint: "In reading corner" },
@@ -368,7 +368,7 @@
             { ans: "8", hint: "Behind the chair" },
             { ans: "41", hint: "Check the computer" },
             { ans: "72", hint: "Main desk" },
-            { ans: "space", hint: "In the closet" }
+            { ans: ["space", "חלל"], hint: "In the closet" }
         ];
 
         let qIndex = 0;
@@ -399,6 +399,18 @@
 
             try {
                 await gameManager.joinRoom(code, name, playerGroup);
+
+                // Initial sync if the group is already ahead
+                if (playerGroup) {
+                    const groupSnap = await firebase.database().ref(`rooms/${code}/groups/${playerGroup}`).once('value');
+                    const groupData = groupSnap.val();
+                    if (groupData && groupData.currentQuestion > 0) {
+                        qIndex = groupData.currentQuestion;
+                        score = qIndex * 100;
+                        gameManager.updateProgress(qIndex, score);
+                    }
+                }
+
                 showScreen('waitScreen');
 
                 gameManager.listenToGameState((state) => {
@@ -411,6 +423,11 @@
                     gameManager.listenToGroupProgress(playerGroup, (data) => {
                         if (data && data.currentQuestion > qIndex) {
                             qIndex = data.currentQuestion;
+                            score = qIndex * 100; // Update local score
+
+                            // Sync individual progress for podium
+                            gameManager.updateProgress(qIndex, score);
+
                             if (qIndex < allQuestions.length) {
                                 updatePuzzleUI();
                             } else {
@@ -470,7 +487,11 @@
             if (!val) return;
 
             const q = allQuestions[qIndex];
-            const isCorrect = normalize(val) === normalize(q.ans);
+
+            // Support both single string and array of valid answers
+            const validAnswers = Array.isArray(q.ans) ? q.ans : [q.ans];
+            const isCorrect = validAnswers.some(a => normalize(val) === normalize(a));
+
             const msg = document.getElementById('msg');
 
             // Broadcast every attempt for the chat bubbles
