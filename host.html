@@ -378,7 +378,7 @@
                 if (action.type === 'answer_attempt') {
                     createBubble(action);
                     if (action.isCorrect) {
-                        showSplashAlert(`${action.name} got it right! 🚀<br><small>Answer: ${action.text}</small>`);
+                        showSplashAlert(`${action.name} said "${action.text}" and was right! 🚀`);
                     }
                 }
             });

@@ -203,10 +203,112 @@
             z-index: 6;
             background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 212, 255, 0.01) 2px, rgba(0, 212, 255, 0.01) 4px);
         }
+
+        /* Social Feedback Elements */
+        #bubblesContainer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 14px;
+            border-radius: 15px 15px 0 15px;
+            color: white;
+            font-size: 0.8rem;
+            animation: floatUpPlayer 3s linear forwards;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bubble .sender {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            color: var(--accent);
+        }
+
+        .bubble.correct {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        @keyframes floatUpPlayer {
+            0% {
+                transform: translateY(100vh) scale(0.8);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-10vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        #splashAlert {
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            z-index: 200;
+            background: rgba(16, 185, 129, 0.95);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 40px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.5);
+            backdrop-filter: blur(10px);
+            width: 80%;
+        }
+
+        #splashAlert.show {
+            animation: splashPopPlayer 2.5s var(--spring) forwards;
+        }
+
+        @keyframes splashPopPlayer {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+
+            15% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 1;
+            }
+
+            85% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.3);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- Social Feedback -->
+    <div id="bubblesContainer"></div>
+    <div id="splashAlert"></div>
 
     <!-- Parallax background -->
     <div class="stars-container">
@@ -302,7 +404,39 @@
                     if (state.status === 'playing') showScreen('puzzleScreen');
                     if (state.status === 'finished') showScreen('endScreen');
                 });
+
+                // Global Social Feed Listener
+                gameManager.listenToStream((action) => {
+                    if (action.type === 'answer_attempt') {
+                        createSocialBubble(action);
+                        if (action.isCorrect) {
+                            showSocialSplash(`${action.name} said "${action.text}" and was right! 🚀`);
+                        }
+                    }
+                });
+
             } catch (e) { alert(e.message); }
+        }
+
+        function createSocialBubble(action) {
+            const container = document.getElementById('bubblesContainer');
+            const bubble = document.createElement('div');
+            bubble.className = `bubble ${action.isCorrect ? 'correct' : ''}`;
+            bubble.style.left = (5 + Math.random() * 80) + '%';
+            bubble.innerHTML = `
+                <span class="sender">${action.name}</span>
+                <span class="text">${action.text}</span>
+            `;
+            container.appendChild(bubble);
+            setTimeout(() => bubble.remove(), 3000);
+        }
+
+        function showSocialSplash(html) {
+            const alert = document.getElementById('splashAlert');
+            alert.innerHTML = html;
+            alert.classList.remove('show');
+            void alert.offsetWidth; // Force reflow
+            alert.classList.add('show');
         }
 
         function handleCheck() {
