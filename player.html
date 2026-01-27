@@ -377,6 +377,7 @@
         // Auto-fill from URL
         const params = new URLSearchParams(window.location.search);
         if (params.has('code')) document.getElementById('codeInput').value = params.get('code');
+        const playerGroup = params.get('group') || null;
 
         // Stars setup
         function createStars(container, count, className) {
@@ -397,7 +398,7 @@
             if (!name || !code) return alert("Missing info!");
 
             try {
-                await gameManager.joinRoom(code, name);
+                await gameManager.joinRoom(code, name, playerGroup);
                 showScreen('waitScreen');
 
                 gameManager.listenToGameState((state) => {
@@ -410,8 +411,12 @@
                     if (action.type === 'answer_attempt') {
                         createSocialBubble(action);
                         if (action.isCorrect) {
-                            showSocialSplash(`${action.name} said "${action.text}" and was right! 🚀`);
+                            const groupInfo = action.group ? ` from Group ${action.group}` : '';
+                            showSocialSplash(`${action.name}${groupInfo} said "${action.text}" and was right! 🚀`);
                         }
+                    } else if (action.type === 'player_finished') {
+                        const groupInfo = action.group ? ` from Group ${action.group}` : '';
+                        showSocialSplash(`🏆 ${action.name}${groupInfo} WON! 🏆`);
                     }
                 });
 
@@ -474,6 +479,10 @@
                     }, 1500);
                 } else {
                     gameManager.setPlayerFinished();
+                    gameManager.broadcastAction({
+                        type: 'player_finished',
+                        msg: 'finished the mission!'
+                    });
                     showScreen('endScreen');
                 }
             } else {

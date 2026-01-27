@@ -65,7 +65,7 @@ class GameManager {
 
     // --- PLAYER METHODS ---
 
-    async joinRoom(code, name) {
+    async joinRoom(code, name, group = null) {
         const roomRef = this.db.ref(`rooms/${code}`);
         const snapshot = await roomRef.once('value');
 
@@ -79,6 +79,7 @@ class GameManager {
         // Add player to room
         await roomRef.child('players').child(this.playerId).set({
             name: name,
+            group: group, // Capture group if provided
             score: 0,
             streak: 0
         });
@@ -121,9 +122,11 @@ class GameManager {
         if (!this.roomCode || !this.playerId) return;
 
         // Push a new message/action to the room's stream
+        const player = this.gameState?.players[this.playerId];
         return this.db.ref(`rooms/${this.roomCode}/stream`).push({
             playerId: this.playerId,
-            name: this.gameState?.players[this.playerId]?.name || 'Unknown',
+            name: player?.name || 'Unknown',
+            group: player?.group || null,
             ...action,
             timestamp: Date.now()
         });

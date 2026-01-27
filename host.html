@@ -59,10 +59,33 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .qr-container {
-            background: white;
-            padding: 20px;
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .qr-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
             border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .qr-group h4 {
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 10px;
+            color: var(--accent);
+            font-size: 0.8rem;
+        }
+
+        .qr-box {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
         }
 
         .room-info h1 {
@@ -97,6 +120,18 @@
             font-weight: 600;
             animation: popIn 0.5s var(--spring);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .group-tag {
+            font-size: 0.7rem;
+            background: var(--accent);
+            color: #030510;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 800;
         }
 
         /* Game View */
@@ -313,7 +348,24 @@
     <div id="lobbyView">
         <h1 style="font-family: 'Orbitron'; margin-bottom: 20px; letter-spacing: 1rem;">MISSION CONTROL</h1>
         <div class="join-card">
-            <div class="qr-container" id="qrcode"></div>
+            <div class="qr-grid">
+                <div class="qr-group">
+                    <h4>GROUP 1</h4>
+                    <div class="qr-box" id="qr1"></div>
+                </div>
+                <div class="qr-group">
+                    <h4>GROUP 2</h4>
+                    <div class="qr-box" id="qr2"></div>
+                </div>
+                <div class="qr-group">
+                    <h4>GROUP 3</h4>
+                    <div class="qr-box" id="qr3"></div>
+                </div>
+                <div class="qr-group">
+                    <h4>GROUP 4</h4>
+                    <div class="qr-box" id="qr4"></div>
+                </div>
+            </div>
             <div class="room-info">
                 <p>JOIN WITH CODE</p>
                 <h1 id="roomCodeDisplay">...</h1>
@@ -362,10 +414,12 @@
             const code = await gameManager.createRoom(gameType);
             document.getElementById('roomCodeDisplay').innerText = code;
 
-            const url = `${window.location.origin}/player.html?code=${code}`;
-            new QRCode(document.getElementById("qrcode"), {
-                text: url, width: 150, height: 150
-            });
+            for (let i = 1; i <= 4; i++) {
+                const url = `${window.location.origin}/player.html?code=${code}&group=${i}`;
+                new QRCode(document.getElementById(`qr${i}`), {
+                    text: url, width: 100, height: 100
+                });
+            }
 
             gameManager.listenToPlayers((players) => {
                 connectedPlayers = players || {};
@@ -378,8 +432,12 @@
                 if (action.type === 'answer_attempt') {
                     createBubble(action);
                     if (action.isCorrect) {
-                        showSplashAlert(`${action.name} said "${action.text}" and was right! 🚀`);
+                        const groupInfo = action.group ? ` from Group ${action.group}` : '';
+                        showSplashAlert(`${action.name}${groupInfo} said "${action.text}" and was right! 🚀`);
                     }
+                } else if (action.type === 'player_finished') {
+                    const groupInfo = action.group ? ` from Group ${action.group}` : '';
+                    showSplashAlert(`🏆 ${action.name}${groupInfo} WON! 🏆`);
                 }
             });
         }
@@ -392,7 +450,10 @@
             Object.values(connectedPlayers).forEach(p => {
                 const badge = document.createElement('div');
                 badge.className = 'player-badge';
-                badge.innerText = p.name;
+                badge.innerHTML = `
+                    ${p.name}
+                    ${p.group ? `<span class="group-tag">G${p.group}</span>` : ''}
+                `;
                 list.appendChild(badge);
             });
         }
@@ -407,7 +468,10 @@
                 const progress = ((p.completedCount || 0) / totalPuzzles) * 100;
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td style="font-weight: 700;">${p.name} ${p.isFinished ? '✅' : ''}</td>
+                    <td style="font-weight: 700;">
+                        ${p.name} ${p.isFinished ? '✅' : ''}
+                        ${p.group ? `<br><small style="color: var(--accent); opacity: 0.6;">Group ${p.group}</small>` : ''}
+                    </td>
                     <td>
                         <div class="progress-bg">
                             <div class="progress-fill" style="width: ${progress}%"></div>
