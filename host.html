@@ -382,6 +382,10 @@
         <div id="bubblesContainer"></div>
         <div id="splashAlert"></div>
 
+        <div id="stopwatch"
+            style="font-family: 'Orbitron'; font-size: 2rem; color: var(--accent); margin-bottom: 5px; text-shadow: 0 0 10px var(--accent-glow);">
+            00:00.0</div>
+
         <h1 style="font-family: 'Orbitron'; margin-bottom: 10px;">MISSION STATUS</h1>
         <div class="leaderboard-container">
             <table class="leaderboard-table">
@@ -431,10 +435,7 @@
             gameManager.listenToStream((action) => {
                 if (action.type === 'answer_attempt') {
                     createBubble(action);
-                    if (action.isCorrect) {
-                        const groupInfo = action.group ? ` from Group ${action.group}` : '';
-                        showSplashAlert(`${action.name}${groupInfo} said "${action.text}" and was right! 🚀`);
-                    }
+                    // Removed splash alert for correct answers as per request
                 } else if (action.type === 'player_finished') {
                     const groupInfo = action.group ? ` from Group ${action.group}` : '';
                     showSplashAlert(`🏆 ${action.name}${groupInfo} WON! 🏆`);
@@ -505,14 +506,31 @@
             alert.classList.add('show');
         }
 
+        let timerInterval;
+        function updateStopwatch() {
+            const start = gameManager.gameState?.startTime || Date.now();
+            const now = Date.now();
+            const diff = now - start;
+            const mins = Math.floor(diff / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+            const ms = Math.floor((diff % 1000) / 100);
+            document.getElementById('stopwatch').innerText =
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms}`;
+        }
+
         function startGame() {
             document.getElementById('lobbyView').style.display = 'none';
             document.getElementById('gameView').style.display = 'block';
             gameManager.startGame();
             updateProgressBoard();
+
+            // Start local stopwatch
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateStopwatch, 100);
         }
 
         function finishGame() {
+            if (timerInterval) clearInterval(timerInterval);
             confetti({ particleCount: 300, spread: 150, origin: { y: 0.6 } });
             showSplashAlert("MISSION ACCOMPLISHED! 🌌<br><small>Great teamwork, crew!</small>");
         }

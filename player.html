@@ -337,6 +337,8 @@
 
     <!-- Screen 3: Puzzles -->
     <div id="puzzleScreen" class="screen">
+        <div id="puzzleTimer"
+            style="font-family: 'Orbitron'; color: var(--accent); margin-bottom: 15px; font-size: 1.2rem;">00:00</div>
         <div id="puzzleCard">
             <h2 id="qTitle">PUZZLE 1</h2>
             <p id="qDesc" style="margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted);"></p>
@@ -350,6 +352,8 @@
     <div id="endScreen" class="screen">
         <div style="font-size: 4rem; margin-bottom: 20px;">🏆</div>
         <h1>MISSION COMPLETE</h1>
+        <p id="finalTimeDisplay"
+            style="font-family: 'Orbitron'; color: var(--gold); font-size: 1.5rem; margin: 15px 0;"></p>
         <p>Check the leaderboard on the main screen!</p>
     </div>
 
@@ -442,10 +446,7 @@
                 gameManager.listenToStream((action) => {
                     if (action.type === 'answer_attempt') {
                         createSocialBubble(action);
-                        if (action.isCorrect) {
-                            const groupInfo = action.group ? ` from Group ${action.group}` : '';
-                            showSocialSplash(`${action.name}${groupInfo} said "${action.text}" and was right! 🚀`);
-                        }
+                        // Removed splash for correct answers
                     } else if (action.type === 'player_finished') {
                         const groupInfo = action.group ? ` from Group ${action.group}` : '';
                         showSocialSplash(`🏆 ${action.name}${groupInfo} WON! 🏆`);
@@ -544,11 +545,33 @@
             inputEl.value = "";
         }
 
+        let timerInterval;
+        function updateStopwatch() {
+            const start = gameManager.gameState?.startTime || Date.now();
+            const now = Date.now();
+            const diff = now - start;
+            const mins = Math.floor(diff / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+            const formatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            const timerEl = document.getElementById('puzzleTimer');
+            if (timerEl) timerEl.innerText = formatted;
+            return formatted;
+        }
+
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if (id === 'puzzleScreen' && allQuestions[qIndex]) {
-                updatePuzzleUI();
+
+            if (id === 'puzzleScreen') {
+                if (allQuestions[qIndex]) updatePuzzleUI();
+                if (!timerInterval) timerInterval = setInterval(updateStopwatch, 1000);
+            }
+
+            if (id === 'endScreen') {
+                if (timerInterval) clearInterval(timerInterval);
+                const finalTime = updateStopwatch();
+                document.getElementById('finalTimeDisplay').innerText = `YOUR TIME: ${finalTime}`;
             }
         }
 
