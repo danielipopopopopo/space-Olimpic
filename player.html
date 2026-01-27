@@ -406,6 +406,21 @@
                     if (state.status === 'finished') showScreen('endScreen');
                 });
 
+                // Group-wide progress sync
+                if (playerGroup) {
+                    gameManager.listenToGroupProgress(playerGroup, (data) => {
+                        if (data && data.currentQuestion > qIndex) {
+                            qIndex = data.currentQuestion;
+                            if (qIndex < allQuestions.length) {
+                                updatePuzzleUI();
+                            } else {
+                                gameManager.setPlayerFinished();
+                                showScreen('endScreen');
+                            }
+                        }
+                    });
+                }
+
                 // Global Social Feed Listener
                 gameManager.listenToStream((action) => {
                     if (action.type === 'answer_attempt') {
@@ -444,13 +459,18 @@
             alert.classList.add('show');
         }
 
+        function normalize(str) {
+            if (!str) return "";
+            return str.trim().toLowerCase().replace(/[\u200B-\u200D\u200E\u200F\uFEFF]/g, "");
+        }
+
         function handleCheck() {
             const inputEl = document.getElementById('answerInput');
-            const val = inputEl.value.trim();
+            const val = inputEl.value;
             if (!val) return;
 
             const q = allQuestions[qIndex];
-            const isCorrect = val.toLowerCase() === q.ans.toLowerCase();
+            const isCorrect = normalize(val) === normalize(q.ans);
             const msg = document.getElementById('msg');
 
             // Broadcast every attempt for the chat bubbles
@@ -467,16 +487,16 @@
                 score += 100;
                 qIndex++;
 
-                // Sync progress
+                // Sync individual progress for leaderboard
                 gameManager.updateProgress(qIndex, score);
 
+                // Sync group progress for everyone in this group
+                if (playerGroup) {
+                    gameManager.updateGroupProgress(playerGroup, qIndex);
+                }
+
                 if (qIndex < allQuestions.length) {
-                    setTimeout(() => {
-                        msg.textContent = "";
-                        document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
-                        document.getElementById('qDesc').textContent = q.hint;
-                        inputEl.value = "";
-                    }, 1500);
+                    updatePuzzleUI();
                 } else {
                     gameManager.setPlayerFinished();
                     gameManager.broadcastAction({
@@ -492,12 +512,22 @@
             }
         }
 
+        function updatePuzzleUI() {
+            const q = allQuestions[qIndex];
+            const msg = document.getElementById('msg');
+            const inputEl = document.getElementById('answerInput');
+
+            msg.textContent = "";
+            document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
+            document.getElementById('qDesc').textContent = q.hint;
+            inputEl.value = "";
+        }
+
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if (id === 'puzzleScreen') {
-                document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
-                document.getElementById('qDesc').textContent = allQuestions[qIndex].hint;
+            if (id === 'puzzleScreen' && allQuestions[qIndex]) {
+                updatePuzzleUI();
             }
         }
 

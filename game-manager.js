@@ -90,11 +90,30 @@ class GameManager {
     async updateProgress(completedCount, score) {
         if (!this.roomCode || !this.playerId) return;
 
-        return this.db.ref(`rooms/${this.roomCode}/players/${this.playerId}`).update({
+        // Individual progress still useful for leaderboard
+        await this.db.ref(`rooms/${this.roomCode}/players/${this.playerId}`).update({
             completedCount: completedCount,
             score: score,
             lastUpdate: Date.now()
         });
+    }
+
+    async updateGroupProgress(groupId, nextIndex) {
+        if (!this.roomCode || !groupId) return;
+        return this.db.ref(`rooms/${this.roomCode}/groups/${groupId}`).update({
+            currentQuestion: nextIndex,
+            lastUpdate: Date.now()
+        });
+    }
+
+    listenToGroupProgress(groupId, callback) {
+        if (!this.roomCode || !groupId) return;
+        const ref = this.db.ref(`rooms/${this.roomCode}/groups/${groupId}`);
+        ref.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) callback(data);
+        });
+        return ref;
     }
 
     async setPlayerFinished() {
