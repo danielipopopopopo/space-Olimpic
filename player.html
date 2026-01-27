@@ -116,6 +116,31 @@
             transform: scale(0.95);
         }
 
+        .group-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0 4px;
+        }
+
+        .group-btn {
+            width: auto;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            border-radius: 999px;
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            box-shadow: none;
+        }
+
+        .group-btn.active {
+            background: var(--accent);
+            color: #030510;
+            border-color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
         /* Typography */
         h1 {
             font-family: 'Orbitron', sans-serif;
@@ -324,6 +349,15 @@
         <div id="puzzleCard">
             <input type="text" id="nameInput" placeholder="Enter Name">
             <input type="text" id="codeInput" placeholder="Mission Code">
+            <div id="groupSelect" style="display: none; margin-top: 4px;">
+                <p style="margin-bottom: 6px; font-size: 0.9rem; color: var(--text-muted);">Choose your group</p>
+                <div class="group-buttons">
+                    <button type="button" class="group-btn" data-group="1">GROUP 1</button>
+                    <button type="button" class="group-btn" data-group="2">GROUP 2</button>
+                    <button type="button" class="group-btn" data-group="3">GROUP 3</button>
+                    <button type="button" class="group-btn" data-group="4">GROUP 4</button>
+                </div>
+            </div>
 
             <button onclick="joinGame()">BLAST OFF 🚀</button>
         </div>
@@ -382,7 +416,24 @@
         // Auto-fill from URL
         const params = new URLSearchParams(window.location.search);
         if (params.has('code')) document.getElementById('codeInput').value = params.get('code');
-        const playerGroup = params.get('group') || null;
+        let playerGroup = params.get('group') || null;
+
+        // Group selection UI (only when not joining via QR with pre-set group)
+        const groupSelectEl = document.getElementById('groupSelect');
+        const groupButtons = document.querySelectorAll('.group-btn');
+
+        if (!playerGroup && groupSelectEl) {
+            groupSelectEl.style.display = 'block';
+        }
+
+        groupButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const selected = btn.getAttribute('data-group');
+                playerGroup = selected;
+                groupButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
 
         // Stars setup
         function createStars(container, count, className) {
@@ -401,6 +452,11 @@
             const name = document.getElementById('nameInput').value.trim();
             const code = document.getElementById('codeInput').value.trim();
             if (!name || !code) return alert("Missing info!");
+
+            // If no group was provided via URL, require manual selection
+            if (!playerGroup) {
+                return alert("Please choose a group before joining.");
+            }
 
             try {
                 await gameManager.joinRoom(code, name, playerGroup);
