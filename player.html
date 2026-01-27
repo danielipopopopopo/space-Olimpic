@@ -306,11 +306,23 @@
         }
 
         function handleCheck() {
-            const val = document.getElementById('answerInput').value.trim().toLowerCase();
+            const inputEl = document.getElementById('answerInput');
+            const val = inputEl.value.trim();
+            if (!val) return;
+
             const q = allQuestions[qIndex];
+            const isCorrect = val.toLowerCase() === q.ans.toLowerCase();
             const msg = document.getElementById('msg');
 
-            if (val === q.ans.toLowerCase()) {
+            // Broadcast every attempt for the chat bubbles
+            gameManager.broadcastAction({
+                type: 'answer_attempt',
+                text: val,
+                isCorrect: isCorrect,
+                puzzleIndex: qIndex
+            });
+
+            if (isCorrect) {
                 msg.className = "msg ok";
                 msg.textContent = "✔ CORRECT!";
                 score += 100;
@@ -324,7 +336,7 @@
                         msg.textContent = "";
                         document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
                         document.getElementById('qDesc').textContent = q.hint;
-                        document.getElementById('answerInput').value = "";
+                        inputEl.value = "";
                     }, 1500);
                 } else {
                     gameManager.setPlayerFinished();

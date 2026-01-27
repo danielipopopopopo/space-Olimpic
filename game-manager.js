@@ -117,6 +117,28 @@ class GameManager {
         return ref;
     }
 
+    async broadcastAction(action) {
+        if (!this.roomCode || !this.playerId) return;
+
+        // Push a new message/action to the room's stream
+        return this.db.ref(`rooms/${this.roomCode}/stream`).push({
+            playerId: this.playerId,
+            name: this.gameState?.players[this.playerId]?.name || 'Unknown',
+            ...action,
+            timestamp: Date.now()
+        });
+    }
+
+    listenToStream(callback) {
+        if (!this.roomCode) return;
+        const ref = this.db.ref(`rooms/${this.roomCode}/stream`);
+        ref.on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            if (data) callback(data);
+        });
+        return ref;
+    }
+
     stopListening(ref) {
         if (ref) ref.off();
     }
