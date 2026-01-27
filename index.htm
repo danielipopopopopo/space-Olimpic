@@ -620,31 +620,31 @@
     <span>SYSTEMS ONLINE</span>
   </div>
 
-  <!-- Game selection modal -->
+  <!-- Mission selection modal -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="game-modal">
       <button class="close-modal" id="closeModal">×</button>
-      <h2 class="modal-title">Select Mission</h2>
-      <p class="modal-subtitle">בחר את המשימה שלך</p>
+      <h2 class="modal-title">Select Role</h2>
+      <p class="modal-subtitle">בחר את התפקיד שלך</p>
 
       <div class="game-options">
-        <div class="game-option" data-game="game1">
+        <div class="game-option" data-action="host">
           <div class="game-option-content">
             <div>
-              <div class="game-name">MISSION 01</div>
-              <div class="game-desc">ההמראה והטיסה</div>
+              <div class="game-name">HOST MISSION</div>
+              <div class="game-desc">יצירת חדר וניהול משימה</div>
             </div>
-            <span class="game-arrow">←</span>
+            <span class="game-arrow">→</span>
           </div>
         </div>
 
-        <div class="game-option" data-game="game2">
+        <div class="game-option" data-action="join">
           <div class="game-option-content">
             <div>
-              <div class="game-name">MISSION 02</div>
-              <div class="game-desc">שיגור ארטמיס</div>
+              <div class="game-name">JOIN MISSION</div>
+              <div class="game-desc">הצטרפות כצוות (מהטלפון)</div>
             </div>
-            <span class="game-arrow">←</span>
+            <span class="game-arrow">→</span>
           </div>
         </div>
       </div>
@@ -723,28 +723,17 @@
       }
     });
 
-    // Game selection
+    // Action selection
     gameOptions.forEach(option => {
       option.addEventListener('click', () => {
-        const game = option.dataset.game;
-        window.location.hash = game;
+        const action = option.dataset.action;
 
-        if (game === 'game1') {
-          window.location.href = 'play1.html';
-        } else if (game === 'game2') {
-          window.location.href = 'play2.html';
+        if (action === 'host') {
+          window.location.href = 'host.html';
+        } else if (action === 'join') {
+          window.location.href = 'player.html';
         }
       });
-    });
-
-    // Handle hash on page load
-    window.addEventListener('load', () => {
-      const hash = window.location.hash.substring(1);
-      if (hash === 'game1') {
-        window.location.href = 'play1.html';
-      } else if (hash === 'game2') {
-        window.location.href = 'play2.html';
-      }
     });
 
     // Keyboard accessibility

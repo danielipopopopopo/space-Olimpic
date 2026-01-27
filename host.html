@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Olimpic - Mission Control</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #030510;
+            --accent: #00d4ff;
+            --gold: #ffd700;
+            --hull: rgba(20, 30, 50, 0.8);
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body {
+            margin: 0;
+            background: radial-gradient(ellipse at 50% 0%, #0a1628 0%, var(--bg-deep) 60%);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Lobby */
+        #lobbyView {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .join-card {
+            background: rgba(20, 30, 50, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+        }
+
+        .room-info h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            color: var(--accent);
+            margin: 0;
+            letter-spacing: 5px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .room-info p {
+            font-size: 1.5rem;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+
+        /* Players Grid */
+        #playersList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            max-width: 800px;
+            margin-top: 40px;
+        }
+
+        .player-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            animation: popIn 0.5s var(--spring);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Game View */
+        #gameView {
+            display: none;
+            height: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .timer-bar {
+            height: 8px;
+            background: var(--accent);
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transition: width 1s linear;
+        }
+
+        .question-card {
+            background: rgba(20, 30, 50, 0.8);
+            backdrop-filter: blur(30px);
+            padding: 40px;
+            border-radius: 24px;
+            margin: 40px auto;
+            max-width: 900px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.1);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        /* Podium */
+        #podiumView {
+            display: none;
+            height: 100%;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 20px;
+            padding-bottom: 100px;
+        }
+
+        .podium-place {
+            width: 150px;
+            text-align: center;
+            background: linear-gradient(to top, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0));
+            border: 1px solid var(--accent);
+            border-bottom: 0;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            animation: growUp 1s var(--spring) forwards;
+            opacity: 0;
+            transform-origin: bottom;
+        }
+
+        .place-1 {
+            height: 400px;
+            border-color: var(--gold);
+            animation-delay: 1.5s;
+            order: 2;
+            z-index: 2;
+        }
+
+        .place-2 {
+            height: 300px;
+            border-color: silver;
+            animation-delay: 1s;
+            order: 1;
+        }
+
+        .place-3 {
+            height: 200px;
+            border-color: #cd7f32;
+            animation-delay: 0.5s;
+            order: 3;
+        }
+
+        .medal {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+            margin-top: -60px;
+            animation: dropIn 0.8s var(--spring) forwards;
+            opacity: 0;
+        }
+
+        .place-1 .medal {
+            animation-delay: 1.8s;
+        }
+
+        .place-2 .medal {
+            animation-delay: 1.3s;
+        }
+
+        .place-3 .medal {
+            animation-delay: 0.8s;
+        }
+
+        .player-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            display: block;
+        }
+
+        .score {
+            display: block;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes growUp {
+            from {
+                transform: scaleY(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes dropIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Start Button */
+        button {
+            margin-top: 40px;
+            padding: 15px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Lobby View -->
+    <div id="lobbyView">
+        <h1 style="font-family: 'Orbitron'; margin-bottom: 20px;">MISSION CONTROL</h1>
+        <div class="join-card">
+            <div class="qr-container" id="qrcode"></div>
+            <div class="room-info">
+                <p>JOIN WITH CODE</p>
+                <h1 id="roomCodeDisplay">...</h1>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 40px; opacity: 0.7;">CREW MEMBERS READY</h3>
+        <div id="playersList">
+            <!-- Players will appear here -->
+        </div>
+
+        <button onclick="startGame()">LAUNCH MISSION 🚀</button>
+    </div>
+
+    <!-- Game View -->
+    <div id="gameView">
+        <div class="timer-bar" id="timerBar"></div>
+        <div class="question-card">
+            <h2 id="questionText">Preparing...</h2>
+            <div id="answersList">
+                <!-- Visual representation of players answering can go here -->
+            </div>
+        </div>
+        <div id="stats">
+            <h2>Answers: <span id="answerCount">0</span></h2>
+        </div>
+    </div>
+
+    <!-- Podium View -->
+    <div id="podiumView">
+        <!-- Populated via JS -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="game-manager.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // Game Logic
+        const questions = [
+            { text: "What is the name of the NASA mission to return to the Moon?", answer: "Artemis" },
+            { text: "Which planet is known as the Red Planet?", answer: "Mars" },
+            { text: "What fuel do rockets use? (General term)", answer: "Propellant" }
+            // Add more questions here or load from a file
+        ];
+
+        let currentQIndex = 0;
+        let connectedPlayers = [];
+
+        // Init
+        async function initHost() {
+            // Check URL for game mode/ID
+            const params = new URLSearchParams(window.location.search);
+            const gameType = params.get('game') || '1'; // Default to Game 1
+
+            const code = await gameManager.createRoom(gameType);
+            document.getElementById('roomCodeDisplay').innerText = code;
+
+            // Generate QR
+            const url = `${window.location.origin}/player.html?code=${code}`;
+            new QRCode(document.getElementById("qrcode"), {
+                text: url,
+                width: 150,
+                height: 150
+            });
+
+            // Listen for players
+            gameManager.listenToPlayers((players) => {
+                const list = document.getElementById('playersList');
+                list.innerHTML = '';
+                connectedPlayers = Object.entries(players);
+
+                connectedPlayers.forEach(([id, p]) => {
+                    const badge = document.createElement('div');
+                    badge.className = 'player-badge';
+                    badge.innerText = p.name;
+                    list.appendChild(badge);
+                });
+            });
+        }
+        initHost();
+
+        function startGame() {
+            document.getElementById('lobbyView').style.display = 'none';
+            document.getElementById('gameView').style.display = 'block';
+            gameManager.startGame();
+            runQuestion(0);
+        }
+
+        function runQuestion(index) {
+            if (index >= questions.length) {
+                endGame();
+                return;
+            }
+
+            const q = questions[index];
+            document.getElementById('questionText').innerText = q.text;
+            gameManager.nextQuestion(index);
+
+            // Simple Timer
+            const timerBar = document.getElementById('timerBar');
+            timerBar.style.width = '100%';
+            timerBar.style.transition = 'none';
+            setTimeout(() => {
+                timerBar.style.transition = 'width 10s linear';
+                timerBar.style.width = '0%';
+            }, 100);
+
+            // Wait for 10s then next
+            setTimeout(() => {
+                runQuestion(index + 1);
+            }, 11000);
+        }
+
+        function endGame() {
+            document.getElementById('gameView').style.display = 'none';
+            document.getElementById('podiumView').style.display = 'flex';
+            gameManager.endGame();
+            showPodium();
+        }
+
+        function showPodium() {
+            // Sort players by score (mock logic for now as scores aren't fully implemented in this MVP)
+            // Ideally gameManager would accumulate scores from answers
+
+            // Mock scores for demo
+            connectedPlayers.sort(() => 0.5 - Math.random());
+            const top3 = connectedPlayers.slice(0, 3);
+
+            const podium = document.getElementById('podiumView');
+            podium.innerHTML = '';
+
+            const orders = ['place-2', 'place-1', 'place-3']; // HTML order for flexbox center alignment
+            const ranks = [2, 1, 3];
+
+            // Map the sorted players to the visual podium slots
+            // Visual Slot 2 (Left) -> Rank 2
+            // Visual Slot 1 (Center) -> Rank 1
+            // Visual Slot 3 (Right) -> Rank 3
+
+            // We iterate 0..2 to fill visual slots.
+            // visual[0] is Left (Place 2)
+            // visual[1] is Center (Place 1)
+            // visual[2] is Right (Place 3)
+
+            const mapping = [1, 0, 2]; // Index in top3 array mapping to Left, Center, Right visual
+
+            mapping.forEach((playerIdx, i) => {
+                if (!top3[playerIdx]) return;
+                const p = top3[playerIdx][1];
+                const rank = ranks[i];
+
+                const div = document.createElement('div');
+                div.className = `podium-place place-${rank}`;
+                div.innerHTML = `
+                    <span class="medal">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'}</span>
+                    <span class="player-name">${p.name}</span>
+                    <span class="score">Score: ${Math.floor(Math.random() * 1000)}</span>
+                `; // Using mock score for display as answers logic is complex for this step
+                podium.appendChild(div);
+            });
+
+            // Trigger confetti
+            confetti({
+                particleCount: 200,
+                spread: 100,
+                origin: { y: 0.6 }
+            });
+        }
+
+    </script>
+</body>
+
+</html>
