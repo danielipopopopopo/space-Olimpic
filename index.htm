@@ -657,7 +657,22 @@
    title="Presentation"
    target="_blank"
    style="
-     position: relative;
+     position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 50px;
+      height: 50px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      text-decoration: none;
+      transition: all 0.3s var(--spring);
+      z-index: 100;
+      backdrop-filter: blur(10px);
    ">
 
   <svg viewBox="0 0 24 24"
@@ -809,6 +824,7 @@
 
 
 </html>
+
 
 
 
