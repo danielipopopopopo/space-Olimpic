@@ -398,18 +398,25 @@
     <script>
         // Puzzle Data (Unified from play1/play2)
         const allQuestions = [
-            { ans: "30", hint: "Search the board" },
-            { ans: ["moon", "ירח"], hint: "Under teacher's desk" },
-            { ans: "12", hint: "By the window" },
-            { ans:"12", hint: "were is it"},
-            { ans: "24", hint: "Behind the door" },
-            { ans: "20", hint: "In reading corner" },
-            { ans: "80", hint: "On the shelf" },
-            { ans: "8", hint: "Behind the chair" },
-            { ans: "41", hint: "Check the computer" },
-            { ans: "72", hint: "Main desk" },
-            { ans: ["space", "חלל"], hint: "In the closet" }
-        ];
+          { ans: atob("MzA="), next: "חפשו על הלוח" },
+          { ans: ["moon","ירח"], next: "מתחת לשולחן המורה" },
+          { ans: atob("MTI="), next: "ליד החלון" },
+          { ans: atob("MTI="), next: "על מפת הירח" },
+          { ans: atob("MjQ="), next: "מאחורי הדלת" },
+          { ans: atob("MjA="), next: "בפינת הקריאה" },
+          { ans: atob("ODA="), next: "על המדף" },
+          { ans: atob("OA=="), next: "מאחורי הכיסא" },
+          { ans: atob("NDE="), next: "בואו למחשב" },
+          { ans: atob("NzI="), next: "על השולחן המרכזי" },
+          { ans: atob("OQ=="), next: "ליד הפח" },
+          { ans: atob("MTA="), next: "על הקיר" },
+          { ans: atob("NTM="), next: "מתחת לחלון" },
+          { ans: ["חלל","Space"], next: "בארון" },
+          { ans: atob("NDg="), next: "על הרצפה" },
+          { ans: atob("NTY="), next: "על התיק" },
+          { ans: atob("NDc="), next: "מאחורי הווילון" },
+          { ans: atob("MjM="), next: "הגעתם לסיום" }
+        ;]
 
         let qIndex = 0;
         let score = 0;
@@ -642,5 +649,6 @@
 
 
 </html>
+
 
 
