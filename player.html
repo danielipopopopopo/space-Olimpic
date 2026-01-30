@@ -45,6 +45,58 @@
             overflow-x: hidden;
             position: relative;
             text-align: center;
+            /* Enable scrolling */
+            min-height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            height: auto;
+        }
+
+        /* Apple-style Bouncy Animations */
+        @keyframes bounceInUp {
+            0% {
+                opacity: 0;
+                transform: translate3d(0, 50px, 0) scale(0.9);
+            }
+
+            60% {
+                opacity: 1;
+                transform: translate3d(0, -10px, 0) scale(1.02);
+            }
+
+            80% {
+                transform: translate3d(0, 5px, 0) scale(0.98);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            40% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .animate-bounce-up {
+            animation: bounceInUp 0.8s var(--spring) forwards;
+        }
+
+        .animate-pop {
+            animation: popIn 0.5s var(--spring) forwards;
         }
 
         /* Screen Transitions */
@@ -54,7 +106,10 @@
             align-items: center;
             justify-content: center;
             padding: 24px;
-            height: 100vh;
+            padding: 24px;
+            min-height: 100vh;
+            height: auto;
+            /* Allow growth */
             z-index: 10;
         }
 
@@ -113,7 +168,12 @@
         }
 
         button:active {
-            transform: scale(0.95);
+            transform: scale(0.92);
+        }
+
+        /* Bouncy input focus */
+        input:focus {
+            transform: scale(1.02);
         }
 
         .group-buttons {
@@ -165,6 +225,8 @@
             border: 1px solid var(--glass-border);
             width: 100%;
             max-width: 400px;
+            /* Animation applied via JS or default class */
+            transition: all 0.5s var(--spring);
         }
 
         .msg {
@@ -398,13 +460,13 @@
     <script>
         // Puzzle Data (Unified from play1/play2)
         const allQuestions = [
-          { ans: ("84"), next: "שידה עם גלגלים" },
-          { ans:("130"), next: "שולחן לבן" },
-          { ans: ("133"), next: "קצה כיתה" },
-          { ans: ("4967"), next: "ארון כיתתי" },
-          { ans: ["moon","לירח"], next: "פח" },
-          { ans: ("12"), next: "מתחת לבר" },
-          { ans: ("ארטמיס"), next: "כרתיס טופי" }
+            { ans: ("84"), next: "שידה עם גלגלים" },
+            { ans: ("130"), next: "שולחן לבן" },
+            { ans: ("133"), next: "קצה כיתה" },
+            { ans: ("4967"), next: "ארון כיתתי" },
+            { ans: ["moon", "לירח"], next: "פח" },
+            { ans: ("12"), next: "מתחת לבר" },
+            { ans: ("ארטמיס"), next: "כרתיס טופי" }
         ]
 
         let qIndex = 0;
@@ -597,8 +659,31 @@
 
             msg.textContent = "";
             document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
-            document.getElementById('qDesc').textContent = q.hint;
+            msg.textContent = "";
+            document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
+
+            // HINT SYSTEM: Show "next" from previous question
+            let hintText = "";
+            if (qIndex === 0) {
+                hintText = "Welcome aboard! Solve the first puzzle.";
+            } else {
+                // Get 'next' from the *previous* question (qIndex - 1)
+                const prevQ = allQuestions[qIndex - 1];
+                if (prevQ && prevQ.next) {
+                    hintText = `Hint: ${prevQ.next}`;
+                } else {
+                    hintText = "Proceed to the next challenge.";
+                }
+            }
+            document.getElementById('qDesc').textContent = hintText;
+
             inputEl.value = "";
+
+            // Re-trigger animation
+            const card = document.getElementById('puzzleCard');
+            card.classList.remove('animate-bounce-up');
+            void card.offsetWidth; // trigger reflow
+            card.classList.add('animate-bounce-up');
         }
 
         let timerInterval;
@@ -640,11 +725,3 @@
 
 
 </html>
-
-
-
-
-
-
-
-
