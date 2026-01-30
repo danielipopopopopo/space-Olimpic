@@ -383,10 +383,161 @@
                 opacity: 1;
             }
 
-            100% {
-                transform: translate(-50%, -50%) scale(1.3);
-                opacity: 0;
+        }
+
+        /* PODIUM STYLES (Copied from Host) */
+        #podiumView {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            min-height: 100vh;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
+            position: absolute;
+            inset: 0;
+            background: var(--bg-deep);
+            /* Ensure it covers everything */
+            z-index: 50;
+        }
+
+        .podium-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 50vh;
+            gap: 15px;
+            margin-top: 30px;
+            perspective: 1000px;
+            width: 100%;
+        }
+
+        .pedestal-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 30%;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: slideUpPedestal 0.8s var(--spring) forwards;
+        }
+
+        .pedestal-wrapper:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .pedestal-wrapper:nth-child(1) {
+            animation-delay: 1.2s;
+        }
+
+        .pedestal-wrapper:nth-child(3) {
+            animation-delay: 1.8s;
+        }
+
+        @keyframes slideUpPedestal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
+        }
+
+        .avatar-glow {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            box-shadow: 0 0 15px currentColor;
+            position: relative;
+        }
+
+        .crown {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        .pedestal {
+            width: 100%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-top: 4px solid currentColor;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .rank-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            opacity: 0.5;
+            line-height: 1;
+        }
+
+        .player-info {
+            margin-bottom: 8px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .player-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .player-score {
+            font-family: 'Orbitron';
+            color: var(--gold);
+            font-size: 0.8rem;
+        }
+
+        .rank-1 {
+            color: #ffd700;
+        }
+
+        .rank-1 .pedestal {
+            height: 180px;
+            background: linear-gradient(180deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.02) 100%);
+            border-color: #ffd700;
+        }
+
+        .rank-2 {
+            color: #c0c0c0;
+        }
+
+        .rank-2 .pedestal {
+            height: 130px;
+            background: linear-gradient(180deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.02) 100%);
+            border-color: #c0c0c0;
+        }
+
+        .rank-3 {
+            color: #cd7f32;
+        }
+
+        .rank-3 .pedestal {
+            height: 100px;
+            background: linear-gradient(180deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.02) 100%);
+            border-color: #cd7f32;
         }
     </style>
 </head>
@@ -451,11 +602,26 @@
         <h1>MISSION COMPLETE</h1>
         <p id="finalTimeDisplay"
             style="font-family: 'Orbitron'; color: var(--gold); font-size: 1.5rem; margin: 15px 0;"></p>
-        <p>Check the leaderboard on the main screen!</p>
+        <p>Waiting for mission results...</p>
+    </div>
+
+    <!-- Podium View -->
+    <div id="podiumView">
+        <h1 style="font-family: 'Orbitron'; font-size: 2rem; margin-bottom: 10px;">MISSION ACCOMPLISHED</h1>
+        <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 20px;">TOP AGENTS</p>
+
+        <div class="podium-container" id="podiumContainer">
+            <!-- Will be populated by JS -->
+        </div>
+
+        <button onclick="location.reload()" style="margin-top: 30px; width: auto; padding: 12px 30px;">NEW
+            MISSION</button>
     </div>
 
     <script src="firebase-config.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="game-manager.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
         // Puzzle Data (Unified from play1/play2)
@@ -476,6 +642,7 @@
         const params = new URLSearchParams(window.location.search);
         if (params.has('code')) document.getElementById('codeInput').value = params.get('code');
         let playerGroup = params.get('group') || null;
+        let connectedPlayers = {}; // To store all players for podium calculation
 
         // Group selection UI (only when not joining via QR with pre-set group)
         const groupSelectEl = document.getElementById('groupSelect');
@@ -535,7 +702,19 @@
 
                 gameManager.listenToGameState((state) => {
                     if (state.status === 'playing') showScreen('puzzleScreen');
-                    if (state.status === 'finished') showScreen('endScreen');
+                    if (state.status === 'finished') {
+                        // Game over!
+                        showScreen('endScreen');
+                        // Wait a bit then show podium
+                        setTimeout(() => {
+                            displayPodium();
+                        }, 3000);
+                    }
+                });
+
+                // Listen to players for Podium data
+                gameManager.listenToPlayers((players) => {
+                    connectedPlayers = players || {};
                 });
 
                 // Group-wide progress sync
@@ -561,7 +740,7 @@
                 // Global Social Feed Listener
                 gameManager.listenToStream((action) => {
                     if (action.type === 'answer_attempt') {
-                        createSocialBubble(action);
+                        // createSocialBubble(action); // Disabled
                         // Removed splash for correct answers
                     } else if (action.type === 'player_finished') {
                         const groupInfo = action.group ? ` from Group ${action.group}` : '';
@@ -720,6 +899,84 @@
         document.getElementById('answerInput').addEventListener('keypress', e => {
             if (e.key === 'Enter') handleCheck();
         });
+
+        // Podium Logic (Adapted for Player View)
+        function displayPodium() {
+            const endScreen = document.getElementById('endScreen');
+            const podiumView = document.getElementById('podiumView');
+            const container = document.getElementById('podiumContainer');
+
+            // Aggregate scores by group
+            const groupScores = {};
+
+            Object.values(connectedPlayers).forEach(p => {
+                const gId = p.group || 'Unassigned';
+                if (!groupScores[gId]) {
+                    groupScores[gId] = { id: gId, score: 0, members: 0 };
+                }
+                groupScores[gId].score += (p.score || 0);
+                groupScores[gId].members++;
+            });
+
+            // Convert to array and sort
+            const sortedGroups = Object.values(groupScores).sort((a, b) => b.score - a.score);
+
+            const top3 = [
+                sortedGroups[1], // Silver
+                sortedGroups[0], // Gold
+                sortedGroups[2]  // Bronze
+            ];
+
+            container.innerHTML = '';
+
+            top3.forEach((g, index) => {
+                let rank = 0;
+                if (index === 0) rank = 2;
+                if (index === 1) rank = 1;
+                if (index === 2) rank = 3;
+
+                // If group doesn't exist
+                if (!g) {
+                    const emptyWrapper = document.createElement('div');
+                    emptyWrapper.className = 'pedestal-wrapper';
+                    emptyWrapper.style.visibility = 'hidden';
+                    container.appendChild(emptyWrapper);
+                    return;
+                }
+
+                const wrapper = document.createElement('div');
+                wrapper.className = `pedestal-wrapper rank-${rank}`;
+
+                const groupName = (g.id === 'Unassigned') ? 'Freelancers' : `GROUP ${g.id}`;
+                const initial = (g.id === 'Unassigned') ? '?' : g.id;
+
+                wrapper.innerHTML = `
+                    <div class="player-info">
+                        <div class="player-name">${groupName}</div>
+                        <div class="player-score">${g.score} PTS</div>
+                    </div>
+                    
+                    <div class="avatar-glow" style="color: currentColor">
+                        ${rank === 1 ? '<div class="crown">👑</div>' : ''}
+                        <span>${initial}</span>
+                    </div>
+                    
+                    <div class="pedestal">
+                        <div class="rank-num">${rank}</div>
+                    </div>
+                `;
+
+                container.appendChild(wrapper);
+            });
+
+            // Switch to podium view specifically
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            podiumView.style.display = 'flex'; // It uses flex in css
+            podiumView.classList.add('active'); // Just in case, though styles are ID based mostly
+
+            // Fire more confetti
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.7 } });
+        }
     </script>
 </body>
 
