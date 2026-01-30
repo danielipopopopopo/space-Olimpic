@@ -653,7 +653,10 @@
       <path d="M4 15l4-6 4 6 4-6 4 6"></path>
       <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path>
     </svg>
-    <a href="https://gang-quiz.netlify.app/" title="Presentation" target="_blank" style="
+<a href="https://gang-quiz.netlify.app/"
+   title="Presentation"
+   target="_blank"
+   style="
      position: fixed;
       bottom: 24px;
       left: 24px;
@@ -672,147 +675,161 @@
       backdrop-filter: blur(10px);
    ">
 
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-        stroke-linejoin="round" style="width:24px; height:24px;">
-        <path d="M4 19h16"></path>
-        <path d="M4 15l4-6 4 6 4-6 4 6"></path>
-        <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path>
-      </svg>
+  <svg viewBox="0 0 24 24"
+       fill="none"
+       stroke="currentColor"
+       stroke-width="2"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       style="width:24px; height:24px;">
+    <path d="M4 19h16"></path>
+    <path d="M4 15l4-6 4 6 4-6 4 6"></path>
+    <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path>
+  </svg>
 
-    </a>
+</a>
 
 
-    <!-- Status bar -->
-    <div class="status-bar">
-      <span class="status-dot"></span>
-      <span>SYSTEMS ONLINE</span>
-    </div>
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-dot"></span>
+    <span>SYSTEMS ONLINE</span>
+  </div>
 
-    <!-- Mission selection modal -->
-    <div class="modal-overlay" id="modalOverlay">
-      <div class="game-modal">
-        <button class="close-modal" id="closeModal">×</button>
-        <h2 class="modal-title">Select Role</h2>
-        <p class="modal-subtitle">בחר את התפקיד שלך</p>
+  <!-- Mission selection modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="game-modal">
+      <button class="close-modal" id="closeModal">×</button>
+      <h2 class="modal-title">Select Role</h2>
+      <p class="modal-subtitle">בחר את התפקיד שלך</p>
 
-        <div class="game-options">
-          <div class="game-option" data-action="host">
-            <div class="game-option-content">
-              <div>
-                <div class="game-name">HOST MISSION</div>
-                <div class="game-desc">יצירת חדר וניהול משימה</div>
-              </div>
-              <span class="game-arrow">→</span>
+      <div class="game-options">
+        <div class="game-option" data-action="host">
+          <div class="game-option-content">
+            <div>
+              <div class="game-name">HOST MISSION</div>
+              <div class="game-desc">יצירת חדר וניהול משימה</div>
             </div>
+            <span class="game-arrow">→</span>
           </div>
+        </div>
 
-          <div class="game-option" data-action="join">
-            <div class="game-option-content">
-              <div>
-                <div class="game-name">JOIN MISSION</div>
-                <div class="game-desc">הצטרפות כצוות (מהטלפון)</div>
-              </div>
-              <span class="game-arrow">→</span>
+        <div class="game-option" data-action="join">
+          <div class="game-option-content">
+            <div>
+              <div class="game-name">JOIN MISSION</div>
+              <div class="game-desc">הצטרפות כצוות (מהטלפון)</div>
             </div>
+            <span class="game-arrow">→</span>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <script>
-      // Generate parallax star layers
-      function createStars(container, count, className, baseOpacity) {
-        for (let i = 0; i < count; i++) {
-          const star = document.createElement('div');
-          star.className = `star ${className}`;
-          star.style.left = Math.random() * 110 + '%';
-          star.style.top = Math.random() * 110 + '%';
+  <script>
+    // Generate parallax star layers
+    function createStars(container, count, className, baseOpacity) {
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = `star ${className}`;
+        star.style.left = Math.random() * 110 + '%';
+        star.style.top = Math.random() * 110 + '%';
 
-          // Add twinkle to some stars
-          if (Math.random() > 0.7) {
-            star.classList.add('twinkle');
-            star.style.setProperty('--duration', (2 + Math.random() * 3) + 's');
-            star.style.setProperty('--base-opacity', baseOpacity);
-            star.style.animationDelay = Math.random() * 5 + 's';
-          }
-
-          container.appendChild(star);
+        // Add twinkle to some stars
+        if (Math.random() > 0.7) {
+          star.classList.add('twinkle');
+          star.style.setProperty('--duration', (2 + Math.random() * 3) + 's');
+          star.style.setProperty('--base-opacity', baseOpacity);
+          star.style.animationDelay = Math.random() * 5 + 's';
         }
+
+        container.appendChild(star);
       }
+    }
 
-      // Create star layers with different densities
-      createStars(document.getElementById('starsBack'), 80, 'star-small', 0.4);
-      createStars(document.getElementById('starsMid'), 50, 'star-medium', 0.6);
-      createStars(document.getElementById('starsFront'), 25, 'star-large', 0.8);
+    // Create star layers with different densities
+    createStars(document.getElementById('starsBack'), 80, 'star-small', 0.4);
+    createStars(document.getElementById('starsMid'), 50, 'star-medium', 0.6);
+    createStars(document.getElementById('starsFront'), 25, 'star-large', 0.8);
 
-      // Mouse parallax effect
-      const starsLayers = document.querySelectorAll('.stars-layer');
-      let mouseX = 0, mouseY = 0;
-      let currentX = 0, currentY = 0;
+    // Mouse parallax effect
+    const starsLayers = document.querySelectorAll('.stars-layer');
+    let mouseX = 0, mouseY = 0;
+    let currentX = 0, currentY = 0;
 
-      document.addEventListener('mousemove', (e) => {
-        mouseX = (e.clientX - window.innerWidth / 2) / window.innerWidth;
-        mouseY = (e.clientY - window.innerHeight / 2) / window.innerHeight;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX - window.innerWidth / 2) / window.innerWidth;
+      mouseY = (e.clientY - window.innerHeight / 2) / window.innerHeight;
+    });
+
+    function animateStars() {
+      // Smooth interpolation
+      currentX += (mouseX - currentX) * 0.05;
+      currentY += (mouseY - currentY) * 0.05;
+
+      starsLayers.forEach(layer => {
+        const speed = parseFloat(layer.dataset.speed);
+        const x = currentX * speed * 100;
+        const y = currentY * speed * 100;
+        layer.style.transform = `translate(${x}px, ${y}px)`;
       });
 
-      function animateStars() {
-        // Smooth interpolation
-        currentX += (mouseX - currentX) * 0.05;
-        currentY += (mouseY - currentY) * 0.05;
+      requestAnimationFrame(animateStars);
+    }
+    animateStars();
 
-        starsLayers.forEach(layer => {
-          const speed = parseFloat(layer.dataset.speed);
-          const x = currentX * speed * 100;
-          const y = currentY * speed * 100;
-          layer.style.transform = `translate(${x}px, ${y}px)`;
-        });
+    // Modal controls
+    const playBtn = document.getElementById('playBtn');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const closeModal = document.getElementById('closeModal');
+    const gameOptions = document.querySelectorAll('.game-option');
 
-        requestAnimationFrame(animateStars);
-      }
-      animateStars();
+    playBtn.addEventListener('click', () => {
+      modalOverlay.classList.add('active');
+    });
 
-      // Modal controls
-      const playBtn = document.getElementById('playBtn');
-      const modalOverlay = document.getElementById('modalOverlay');
-      const closeModal = document.getElementById('closeModal');
-      const gameOptions = document.querySelectorAll('.game-option');
+    closeModal.addEventListener('click', () => {
+      modalOverlay.classList.remove('active');
+    });
 
-      playBtn.addEventListener('click', () => {
-        modalOverlay.classList.add('active');
-      });
-
-      closeModal.addEventListener('click', () => {
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
         modalOverlay.classList.remove('active');
-      });
+      }
+    });
 
-      modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-          modalOverlay.classList.remove('active');
+    // Action selection
+    gameOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        const action = option.dataset.action;
+
+        if (action === 'host') {
+          window.location.href = 'host.html';
+        } else if (action === 'join') {
+          window.location.href = 'player.html';
         }
       });
+    });
 
-      // Action selection
-      gameOptions.forEach(option => {
-        option.addEventListener('click', () => {
-          const action = option.dataset.action;
-
-          if (action === 'host') {
-            window.location.href = 'host.html';
-          } else if (action === 'join') {
-            window.location.href = 'player.html';
-          }
-        });
-      });
-
-      // Keyboard accessibility
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
-          modalOverlay.classList.remove('active');
-        }
-      });
-    </script>
+    // Keyboard accessibility
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+        modalOverlay.classList.remove('active');
+      }
+    });
+  </script>
 
 </body>
 
 
 </html>
+
+
+
+
+
+
+
+
+
