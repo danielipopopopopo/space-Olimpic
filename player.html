@@ -539,6 +539,43 @@
             background: linear-gradient(180deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.02) 100%);
             border-color: #cd7f32;
         }
+
+        /* BEST TEAM INDICATOR */
+        #leadIndicator {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            /* RTL layout essentially puts this on the right visually if dir=rtl, or left if logic differs. */
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50px;
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 90;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s var(--spring);
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        #leadIndicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #leadIndicator .icon {
+            font-size: 1.2rem;
+        }
+
+        #leadIndicator .text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--gold);
+            font-weight: 700;
+        }
     </style>
 </head>
 
@@ -547,6 +584,12 @@
     <!-- Social Feedback -->
     <div id="bubblesContainer"></div>
     <div id="splashAlert"></div>
+
+    <!-- Best Team Indicator -->
+    <div id="leadIndicator">
+        <span class="icon">🏆</span>
+        <span class="text" id="leadText">LEADER: -</span>
+    </div>
 
     <!-- Parallax background -->
     <div class="stars-container">
@@ -712,9 +755,10 @@
                     }
                 });
 
-                // Listen to players for Podium data
+                // Listen to players for Podium data AND Leader Indicator
                 gameManager.listenToPlayers((players) => {
                     connectedPlayers = players || {};
+                    updateLeaderIndicator();
                 });
 
                 // Group-wide progress sync
@@ -976,6 +1020,42 @@
 
             // Fire more confetti
             confetti({ particleCount: 150, spread: 100, origin: { y: 0.7 } });
+        }
+
+        function updateLeaderIndicator() {
+            const indicator = document.getElementById('leadIndicator');
+            const textEl = document.getElementById('leadText');
+
+            // Aggregate scores
+            const groupScores = {};
+            let hasScores = false;
+
+            Object.values(connectedPlayers).forEach(p => {
+                const gId = p.group || 'Unassigned';
+                if (!groupScores[gId]) {
+                    groupScores[gId] = { id: gId, score: 0 };
+                }
+                groupScores[gId].score += (p.score || 0);
+                if (p.score > 0) hasScores = true;
+            });
+
+            // If no scores yet, hide
+            if (!hasScores) {
+                indicator.classList.remove('show');
+                return;
+            }
+
+            // Sort
+            const sorted = Object.values(groupScores).sort((a, b) => b.score - a.score);
+            const leader = sorted[0];
+
+            if (leader && leader.score > 0) {
+                const name = leader.id === 'Unassigned' ? 'FREE' : `G${leader.id}`;
+                textEl.innerText = `${name} (${leader.score})`;
+                indicator.classList.add('show');
+            } else {
+                indicator.classList.remove('show');
+            }
         }
     </script>
 </body>
