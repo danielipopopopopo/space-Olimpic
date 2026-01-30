@@ -549,13 +549,15 @@
 
             const msg = document.getElementById('msg');
 
-            // Broadcast every attempt for the chat bubbles
-            gameManager.broadcastAction({
-                type: 'answer_attempt',
-                text: val,
-                isCorrect: isCorrect,
-                puzzleIndex: qIndex
-            });
+            // Broadcast only incorrect attempts (per request to remove "got it right" messages)
+            if (!isCorrect) {
+                gameManager.broadcastAction({
+                    type: 'answer_attempt',
+                    text: val,
+                    isCorrect: isCorrect,
+                    puzzleIndex: qIndex
+                });
+            }
 
             if (isCorrect) {
                 msg.className = "msg ok";
