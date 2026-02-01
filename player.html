@@ -638,11 +638,17 @@
     <div id="puzzleScreen" class="screen">
         <div id="puzzleTimer"
             style="font-family: 'Orbitron'; color: var(--accent); margin-bottom: 15px; font-size: 1.2rem;">00:00</div>
+
+        <!-- Progress indicator -->
+        <div id="progressIndicator"
+            style="display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; max-width: 420px;">
+        </div>
+
         <div id="puzzleCard">
-            <h2 id="qTitle">חידה 1</h2>
+            <h2 id="qTitle">הקלד תשובה</h2>
             <p id="qDesc" style="margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted);"></p>
             <input type="text" id="answerInput" placeholder="הקלד תשובה (מספרים ועברית בלבד)..." autocomplete="off">
-            <button onclick="handleCheck()">שלח 🛸</button>
+            <button onclick="handleCheck()" id="submitBtn">שלח 🛸</button>
             <div id="msg" class="msg"></div>
         </div>
     </div>
@@ -686,7 +692,8 @@
             { ans: ("ארטמיס"), next: "כרתיס טופי" }
         ]
 
-        let qIndex = 0;
+        // Track answered questions (Set of indices)
+        let answeredQuestions = new Set();
         let score = 0;
 
         // Auto-fill from URL
@@ -730,22 +737,47 @@
             const code = document.getElementById('codeInput').value.trim();
             if (!name || !code) return alert("חסר מידע!");
 
+            // Blocked name patterns (case insensitive)
+            const blockedPatterns = [
+                'גלי', 'gali', 'גלגול', 'גליה', 'גל', 'gal'
+            ];
+            const nameLower = name.toLowerCase();
+            const isBlocked = blockedPatterns.some(pattern =>
+                nameLower.includes(pattern.toLowerCase())
+            );
+
+            if (isBlocked) {
+                return alert("השם הזה לא שמיש באתריינו. אנא בחר שם אחר.");
+            }
+
             // If no group was provided via URL, require manual selection
             if (!playerGroup) {
                 return alert("אנא בחר קבוצה לפני ההצטרפות.");
             }
 
             try {
+                // Check if name is already taken in this room
+                const playersSnap = await firebase.database().ref(`rooms/${code}/players`).once('value');
+                const existingPlayers = playersSnap.val() || {};
+                const nameTaken = Object.values(existingPlayers).some(
+                    p => p.name && p.name.toLowerCase() === name.toLowerCase()
+                );
+
+                if (nameTaken) {
+                    return alert("השם הזה כבר תפוס במשחק הזה. אנא בחר שם אחר.");
+                }
+
                 await gameManager.joinRoom(code, name, playerGroup);
 
                 // Initial sync if the group is already ahead
                 if (playerGroup) {
                     const groupSnap = await firebase.database().ref(`rooms/${code}/groups/${playerGroup}`).once('value');
                     const groupData = groupSnap.val();
-                    if (groupData && groupData.currentQuestion > 0) {
-                        qIndex = groupData.currentQuestion;
-                        score = qIndex * 100;
-                        gameManager.updateProgress(qIndex, score);
+                    if (groupData && groupData.answeredQuestions) {
+                        // Sync answered questions from group
+                        answeredQuestions = new Set(groupData.answeredQuestions);
+                        score = answeredQuestions.size * 100;
+                        gameManager.updateProgress(answeredQuestions.size, score);
                     }
                 }
 
@@ -772,18 +804,27 @@
                 // Group-wide progress sync
                 if (playerGroup) {
                     gameManager.listenToGroupProgress(playerGroup, (data) => {
-                        if (data && data.currentQuestion > qIndex) {
-                            qIndex = data.currentQuestion;
-                            score = qIndex * 100; // Update local score
+                        if (data && data.answeredQuestions) {
+                            const newAnswered = new Set(data.answeredQuestions);
+                            // Check if there are new answers from group
+                            if (newAnswered.size > answeredQuestions.size) {
+                                answeredQuestions = newAnswered;
+                                score = answeredQuestions.size * 100;
 
-                            // Sync individual progress for podium
-                            gameManager.updateProgress(qIndex, score);
+                                // Sync individual progress for podium
+                                gameManager.updateProgress(answeredQuestions.size, score);
 
-                            if (qIndex < allQuestions.length) {
-                                updatePuzzleUI();
-                            } else {
-                                gameManager.setPlayerFinished();
-                                showScreen('endScreen');
+                                if (answeredQuestions.size < allQuestions.length) {
+                                    updateQuestionGrid();
+                                    // If current question was answered by someone else, reset selection
+                                    if (currentQuestionIndex !== null && answeredQuestions.has(currentQuestionIndex)) {
+                                        currentQuestionIndex = null;
+                                        updatePuzzleUI();
+                                    }
+                                } else {
+                                    gameManager.setPlayerFinished();
+                                    showScreen('endScreen');
+                                }
                             }
                         }
                     });
@@ -834,41 +875,52 @@
             const val = inputEl.value;
             if (!val) return;
 
-            const q = allQuestions[qIndex];
-
-            // Support both single string and array of valid answers
-            const validAnswers = Array.isArray(q.ans) ? q.ans : [q.ans];
-            const isCorrect = validAnswers.some(a => normalize(val) === normalize(a));
-
             const msg = document.getElementById('msg');
+            let matchedIndex = -1;
 
-            // Broadcast only incorrect attempts (per request to remove "got it right" messages)
-            if (!isCorrect) {
-                gameManager.broadcastAction({
-                    type: 'answer_attempt',
-                    text: val,
-                    isCorrect: isCorrect,
-                    puzzleIndex: qIndex
-                });
+            // Check against ALL unanswered questions
+            for (let i = 0; i < allQuestions.length; i++) {
+                // Skip already answered questions
+                if (answeredQuestions.has(i)) continue;
+
+                const q = allQuestions[i];
+                const validAnswers = Array.isArray(q.ans) ? q.ans : [q.ans];
+
+                if (validAnswers.some(a => normalize(val) === normalize(a))) {
+                    matchedIndex = i;
+                    break; // Found a match!
+                }
             }
 
-            if (isCorrect) {
+            if (matchedIndex >= 0) {
+                // Correct answer found!
+                const matchedQ = allQuestions[matchedIndex];
                 msg.className = "msg ok";
-                msg.textContent = "✔ נכון!";
+                msg.textContent = `✔ נכון! (חידה ${matchedIndex + 1})`;
+
+                // Show hint for next location
+                if (matchedQ.next) {
+                    setTimeout(() => {
+                        msg.textContent = `רמז: ${matchedQ.next}`;
+                    }, 1500);
+                }
+
                 score += 100;
-                qIndex++;
+                answeredQuestions.add(matchedIndex);
 
                 // Sync individual progress for leaderboard
-                gameManager.updateProgress(qIndex, score);
+                gameManager.updateProgress(answeredQuestions.size, score);
 
                 // Sync group progress for everyone in this group
                 if (playerGroup) {
-                    gameManager.updateGroupProgress(playerGroup, qIndex);
+                    gameManager.updateGroupProgress(playerGroup, answeredQuestions.size, Array.from(answeredQuestions));
                 }
 
-                if (qIndex < allQuestions.length) {
-                    updatePuzzleUI();
-                } else {
+                // Update progress indicator
+                updateProgressIndicator();
+                inputEl.value = '';
+
+                if (answeredQuestions.size >= allQuestions.length) {
                     gameManager.setPlayerFinished();
                     gameManager.broadcastAction({
                         type: 'player_finished',
@@ -877,44 +929,48 @@
                     showScreen('endScreen');
                 }
             } else {
+                // Wrong - doesn't match any unanswered question
                 msg.className = "msg bad";
                 msg.textContent = "❌ לא נכון";
                 setTimeout(() => { msg.textContent = ""; }, 1500);
+
+                // Broadcast wrong attempt
+                gameManager.broadcastAction({
+                    type: 'answer_attempt',
+                    text: val,
+                    isCorrect: false
+                });
             }
         }
 
-        function updatePuzzleUI() {
-            const q = allQuestions[qIndex];
-            const msg = document.getElementById('msg');
-            const inputEl = document.getElementById('answerInput');
+        // Update the progress indicator showing completed/total
+        function updateProgressIndicator() {
+            const indicator = document.getElementById('progressIndicator');
+            indicator.innerHTML = '';
 
-            msg.textContent = "";
-            document.getElementById('qTitle').textContent = `חידה ${qIndex + 1}`;
-            msg.textContent = "";
-            document.getElementById('qTitle').textContent = `חידה ${qIndex + 1}`;
+            allQuestions.forEach((q, index) => {
+                const dot = document.createElement('div');
+                dot.style.cssText = `
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    transition: all 0.3s var(--spring);
+                `;
 
-            // HINT SYSTEM: Show "next" from previous question
-            let hintText = "";
-            if (qIndex === 0) {
-                hintText = "ברוכים הבאים! פתרו את החידה הראשונה.";
-            } else {
-                // Get 'next' from the *previous* question (qIndex - 1)
-                const prevQ = allQuestions[qIndex - 1];
-                if (prevQ && prevQ.next) {
-                    hintText = `רמז: ${prevQ.next}`;
+                if (answeredQuestions.has(index)) {
+                    dot.style.background = 'var(--success)';
+                    dot.style.boxShadow = '0 0 8px var(--success)';
                 } else {
-                    hintText = "המשיכו לאתגר הבא.";
+                    dot.style.background = 'rgba(255, 255, 255, 0.2)';
+                    dot.style.border = '1px solid rgba(255, 255, 255, 0.3)';
                 }
-            }
-            document.getElementById('qDesc').textContent = hintText;
 
-            inputEl.value = "";
+                indicator.appendChild(dot);
+            });
 
-            // Re-trigger animation
-            const card = document.getElementById('puzzleCard');
-            card.classList.remove('animate-bounce-up');
-            void card.offsetWidth; // trigger reflow
-            card.classList.add('animate-bounce-up');
+            // Update title with progress
+            document.getElementById('qTitle').textContent = `${answeredQuestions.size}/${allQuestions.length} חידות`;
+            document.getElementById('qDesc').textContent = 'הקלד תשובה לכל חידה - המערכת תבדוק אוטומטית!';
         }
 
         let timerInterval;
@@ -936,8 +992,9 @@
             document.getElementById(id).classList.add('active');
 
             if (id === 'puzzleScreen') {
-                if (allQuestions[qIndex]) updatePuzzleUI();
-                if (!timerInterval) timerInterval = setInterval(updateStopwatch, 18000);
+                updateProgressIndicator();
+                document.getElementById('answerInput').focus();
+                if (!timerInterval) timerInterval = setInterval(updateStopwatch, 1000);
             }
 
             if (id === 'endScreen') {

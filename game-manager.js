@@ -98,10 +98,11 @@ class GameManager {
         });
     }
 
-    async updateGroupProgress(groupId, nextIndex) {
+    async updateGroupProgress(groupId, completedCount, answeredQuestions = []) {
         if (!this.roomCode || !groupId) return;
         return this.db.ref(`rooms/${this.roomCode}/groups/${groupId}`).update({
-            currentQuestion: nextIndex,
+            currentQuestion: completedCount, // Keep for backwards compatibility
+            answeredQuestions: answeredQuestions, // Array of answered question indices
             lastUpdate: Date.now()
         });
     }
