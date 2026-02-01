@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Space Olimpic - Crew Member</title>
+    <title>אולימפיאדת החלל - שחקן</title>
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;800;900&family=Inter:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap"
         rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -36,7 +36,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Heebo', 'Inter', sans-serif;
             background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-mid) 50%, #0d1225 100%);
             color: var(--text);
             min-height: 100vh;
@@ -134,15 +134,16 @@
         input {
             width: 100%;
             padding: 18px 24px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             text-align: center;
-            font-family: inherit;
-            margin-bottom: 12px;
-            transition: all 0.3s;
+            font-family: 'Heebo', inherit;
+            margin-bottom: 16px;
+            transition: all 0.3s var(--spring);
+            letter-spacing: 0.5px;
         }
 
         input:focus {
@@ -154,17 +155,18 @@
 
         button {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+            padding: 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, #a855f7 50%, #ff6b9d 100%);
             color: #030510;
             border: none;
-            border-radius: 16px;
+            border-radius: 20px;
             font-weight: 800;
-            font-size: 1.1rem;
-            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-family: 'Heebo', 'Orbitron', sans-serif;
             cursor: pointer;
             transition: all 0.3s var(--spring);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3), 0 0 20px rgba(168, 85, 247, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         button:active {
@@ -203,30 +205,36 @@
 
         /* Typography */
         h1 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Heebo', 'Orbitron', sans-serif;
             color: var(--accent);
-            margin-bottom: 20px;
-            font-size: 2rem;
+            margin-bottom: 24px;
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(0, 212, 255, 0.2);
+            letter-spacing: 1px;
         }
 
         h2 {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: var(--gold);
             margin-bottom: 1.5rem;
-            font-family: 'Orbitron';
+            font-family: 'Heebo', 'Orbitron';
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
         }
 
         /* Puzzle Elements */
         #puzzleCard {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            padding: 30px;
-            border-radius: 28px;
-            border: 1px solid var(--glass-border);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(25px);
+            padding: 35px;
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             /* Animation applied via JS or default class */
             transition: all 0.5s var(--spring);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         .msg {
@@ -588,7 +596,7 @@
     <!-- Best Team Indicator -->
     <div id="leadIndicator">
         <span class="icon">🏆</span>
-        <span class="text" id="leadText">LEADER: -</span>
+        <span class="text" id="leadText">מוביל: -</span>
     </div>
 
     <!-- Parallax background -->
@@ -601,40 +609,46 @@
 
     <!-- Screen 1: Join -->
     <div id="joinScreen" class="screen active">
-        <h1>JOIN MISSION</h1>
+        <h1>הצטרף למשימה</h1>
         <div id="puzzleCard">
-            <input type="text" id="nameInput" placeholder="Enter Name">
-            <input type="text" id="codeInput" placeholder="Mission Code">
+            <input type="text" id="nameInput" placeholder="הכנס שם">
+            <input type="text" id="codeInput" placeholder="קוד משימה">
             <div id="groupSelect" style="display: none; margin-top: 4px;">
-                <p style="margin-bottom: 6px; font-size: 0.9rem; color: var(--text-muted);">Choose your group</p>
+                <p style="margin-bottom: 6px; font-size: 0.9rem; color: var(--text-muted);">בחר את הקבוצה שלך</p>
                 <div class="group-buttons">
-                    <button type="button" class="group-btn" data-group="1">GROUP 1</button>
-                    <button type="button" class="group-btn" data-group="2">GROUP 2</button>
-                    <button type="button" class="group-btn" data-group="3">GROUP 3</button>
-                    <button type="button" class="group-btn" data-group="4">GROUP 4</button>
+                    <button type="button" class="group-btn" data-group="1">קבוצה 1</button>
+                    <button type="button" class="group-btn" data-group="2">קבוצה 2</button>
+                    <button type="button" class="group-btn" data-group="3">קבוצה 3</button>
+                    <button type="button" class="group-btn" data-group="4">קבוצה 4</button>
                 </div>
             </div>
 
-            <button onclick="joinGame()">BLAST OFF 🚀</button>
+            <button onclick="joinGame()">שיגור 🚀</button>
         </div>
     </div>
 
     <!-- Screen 2: Waiting -->
     <div id="waitScreen" class="screen">
         <div style="font-size: 3rem; margin-bottom: 20px;">🛰️</div>
-        <h1>WAITING...</h1>
-        <p>Prepare the cockpit. We launch soon.</p>
+        <h1>ממתין...</h1>
+        <p>הכינו את תא הטייס. השיגור מתקרב.</p>
     </div>
 
     <!-- Screen 3: Puzzles -->
     <div id="puzzleScreen" class="screen">
         <div id="puzzleTimer"
             style="font-family: 'Orbitron'; color: var(--accent); margin-bottom: 15px; font-size: 1.2rem;">00:00</div>
+
+        <!-- Progress indicator -->
+        <div id="progressIndicator"
+            style="display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; max-width: 420px;">
+        </div>
+
         <div id="puzzleCard">
-            <h2 id="qTitle">PUZZLE 1</h2>
+            <h2 id="qTitle">הקלד תשובה</h2>
             <p id="qDesc" style="margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted);"></p>
-            <input type="text" id="answerInput" placeholder="Type answer..." autocomplete="off">
-            <button onclick="handleCheck()">SUBMIT 🛸</button>
+            <input type="text" id="answerInput" placeholder="הקלד תשובה (מספרים ועברית בלבד)..." autocomplete="off">
+            <button onclick="handleCheck()" id="submitBtn">שלח 🛸</button>
             <div id="msg" class="msg"></div>
         </div>
     </div>
@@ -642,23 +656,23 @@
     <!-- Screen 4: Finished -->
     <div id="endScreen" class="screen">
         <div style="font-size: 4rem; margin-bottom: 20px;">🏆</div>
-        <h1>MISSION COMPLETE</h1>
+        <h1>המשימה הושלמה</h1>
         <p id="finalTimeDisplay"
             style="font-family: 'Orbitron'; color: var(--gold); font-size: 1.5rem; margin: 15px 0;"></p>
-        <p>Waiting for mission results...</p>
+        <p>ממתין לתוצאות המשימה...</p>
     </div>
 
     <!-- Podium View -->
     <div id="podiumView">
-        <h1 style="font-family: 'Orbitron'; font-size: 2rem; margin-bottom: 10px;">MISSION ACCOMPLISHED</h1>
-        <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 20px;">TOP AGENTS</p>
+        <h1 style="font-family: 'Heebo', 'Orbitron'; font-size: 2rem; margin-bottom: 10px;">המשימה הושלמה!</h1>
+        <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 20px;">הסוכנים המובילים</p>
 
         <div class="podium-container" id="podiumContainer">
             <!-- Will be populated by JS -->
         </div>
 
-        <button onclick="location.reload()" style="margin-top: 30px; width: auto; padding: 12px 30px;">NEW
-            MISSION</button>
+        <button onclick="location.reload()" style="margin-top: 30px; width: auto; padding: 12px 30px;">משימה
+            חדשה</button>
     </div>
 
     <script src="firebase-config.js"></script>
@@ -669,16 +683,28 @@
     <script>
         // Puzzle Data (Unified from play1/play2)
         const allQuestions = [
-            { ans: ("84"), next: "שידה עם גלגלים" },
-            { ans: ("130"), next: "שולחן לבן" },
-            { ans: ("133"), next: "קצה כיתה" },
-            { ans: ("4967"), next: "ארון כיתתי" },
-            { ans: ["moon", "לירח"], next: "פח" },
-            { ans: ("12"), next: "מתחת לבר" },
-            { ans: ("ארטמיס"), next: "כרתיס טופי" }
+            { ans: ("30") },
+            { ans: ["moon", "לירח"] },
+            { ans: ("12") },
+            { ans: ("12") },
+            { ans: ("24") },
+            { ans: ("20") },
+            { ans: ("80") },
+            { ans: ("8") },
+            { ans: ("41") },
+            { ans: ("72") },
+            { ans: ("9") },
+            { ans: ("10") },
+            { ans: ("53") },
+            { ans: ("חלל") },
+            { ans: ("48") },
+            { ans: ("56") },
+            { ans: ("47") },
+            { ans: ("23") }
         ]
 
-        let qIndex = 0;
+        // Track answered questions (Set of indices)
+        let answeredQuestions = new Set();
         let score = 0;
 
         // Auto-fill from URL
@@ -720,24 +746,49 @@
         async function joinGame() {
             const name = document.getElementById('nameInput').value.trim();
             const code = document.getElementById('codeInput').value.trim();
-            if (!name || !code) return alert("Missing info!");
+            if (!name || !code) return alert("חסר מידע!");
+
+            // Blocked name patterns (case insensitive)
+            const blockedPatterns = [
+                'גלי', 'gali', 'גלגול', 'גליה', 'גל', 'gal', 'גליוש'
+            ];
+            const nameLower = name.toLowerCase();
+            const isBlocked = blockedPatterns.some(pattern =>
+                nameLower.includes(pattern.toLowerCase())
+            );
+
+            if (isBlocked) {
+                return alert("השם הזה לא שמיש באתריינו. אנא בחר שם אחר.");
+            }
 
             // If no group was provided via URL, require manual selection
             if (!playerGroup) {
-                return alert("Please choose a group before joining.");
+                return alert("אנא בחר קבוצה לפני ההצטרפות.");
             }
 
             try {
+                // Check if name is already taken in this room
+                const playersSnap = await firebase.database().ref(`rooms/${code}/players`).once('value');
+                const existingPlayers = playersSnap.val() || {};
+                const nameTaken = Object.values(existingPlayers).some(
+                    p => p.name && p.name.toLowerCase() === name.toLowerCase()
+                );
+
+                if (nameTaken) {
+                    return alert("השם הזה כבר תפוס במשחק הזה. אנא בחר שם אחר.");
+                }
+
                 await gameManager.joinRoom(code, name, playerGroup);
 
                 // Initial sync if the group is already ahead
                 if (playerGroup) {
                     const groupSnap = await firebase.database().ref(`rooms/${code}/groups/${playerGroup}`).once('value');
                     const groupData = groupSnap.val();
-                    if (groupData && groupData.currentQuestion > 0) {
-                        qIndex = groupData.currentQuestion;
-                        score = qIndex * 100;
-                        gameManager.updateProgress(qIndex, score);
+                    if (groupData && groupData.answeredQuestions) {
+                        // Sync answered questions from group
+                        answeredQuestions = new Set(groupData.answeredQuestions);
+                        score = answeredQuestions.size * 100;
+                        gameManager.updateProgress(answeredQuestions.size, score);
                     }
                 }
 
@@ -764,18 +815,27 @@
                 // Group-wide progress sync
                 if (playerGroup) {
                     gameManager.listenToGroupProgress(playerGroup, (data) => {
-                        if (data && data.currentQuestion > qIndex) {
-                            qIndex = data.currentQuestion;
-                            score = qIndex * 100; // Update local score
+                        if (data && data.answeredQuestions) {
+                            const newAnswered = new Set(data.answeredQuestions);
+                            // Check if there are new answers from group
+                            if (newAnswered.size > answeredQuestions.size) {
+                                answeredQuestions = newAnswered;
+                                score = answeredQuestions.size * 100;
 
-                            // Sync individual progress for podium
-                            gameManager.updateProgress(qIndex, score);
+                                // Sync individual progress for podium
+                                gameManager.updateProgress(answeredQuestions.size, score);
 
-                            if (qIndex < allQuestions.length) {
-                                updatePuzzleUI();
-                            } else {
-                                gameManager.setPlayerFinished();
-                                showScreen('endScreen');
+                                if (answeredQuestions.size < allQuestions.length) {
+                                    updateQuestionGrid();
+                                    // If current question was answered by someone else, reset selection
+                                    if (currentQuestionIndex !== null && answeredQuestions.has(currentQuestionIndex)) {
+                                        currentQuestionIndex = null;
+                                        updatePuzzleUI();
+                                    }
+                                } else {
+                                    gameManager.setPlayerFinished();
+                                    showScreen('endScreen');
+                                }
                             }
                         }
                     });
@@ -826,41 +886,52 @@
             const val = inputEl.value;
             if (!val) return;
 
-            const q = allQuestions[qIndex];
-
-            // Support both single string and array of valid answers
-            const validAnswers = Array.isArray(q.ans) ? q.ans : [q.ans];
-            const isCorrect = validAnswers.some(a => normalize(val) === normalize(a));
-
             const msg = document.getElementById('msg');
+            let matchedIndex = -1;
 
-            // Broadcast only incorrect attempts (per request to remove "got it right" messages)
-            if (!isCorrect) {
-                gameManager.broadcastAction({
-                    type: 'answer_attempt',
-                    text: val,
-                    isCorrect: isCorrect,
-                    puzzleIndex: qIndex
-                });
+            // Check against ALL unanswered questions
+            for (let i = 0; i < allQuestions.length; i++) {
+                // Skip already answered questions
+                if (answeredQuestions.has(i)) continue;
+
+                const q = allQuestions[i];
+                const validAnswers = Array.isArray(q.ans) ? q.ans : [q.ans];
+
+                if (validAnswers.some(a => normalize(val) === normalize(a))) {
+                    matchedIndex = i;
+                    break; // Found a match!
+                }
             }
 
-            if (isCorrect) {
+            if (matchedIndex >= 0) {
+                // Correct answer found!
+                const matchedQ = allQuestions[matchedIndex];
                 msg.className = "msg ok";
-                msg.textContent = "✔ CORRECT!";
+                msg.textContent = `✔ נכון! (חידה ${matchedIndex + 1})`;
+
+                // Show hint for next location
+                if (matchedQ.next) {
+                    setTimeout(() => {
+                        msg.textContent = `רמז: ${matchedQ.next}`;
+                    }, 1500);
+                }
+
                 score += 100;
-                qIndex++;
+                answeredQuestions.add(matchedIndex);
 
                 // Sync individual progress for leaderboard
-                gameManager.updateProgress(qIndex, score);
+                gameManager.updateProgress(answeredQuestions.size, score);
 
                 // Sync group progress for everyone in this group
                 if (playerGroup) {
-                    gameManager.updateGroupProgress(playerGroup, qIndex);
+                    gameManager.updateGroupProgress(playerGroup, answeredQuestions.size, Array.from(answeredQuestions));
                 }
 
-                if (qIndex < allQuestions.length) {
-                    updatePuzzleUI();
-                } else {
+                // Update progress indicator
+                updateProgressIndicator();
+                inputEl.value = '';
+
+                if (answeredQuestions.size >= allQuestions.length) {
                     gameManager.setPlayerFinished();
                     gameManager.broadcastAction({
                         type: 'player_finished',
@@ -869,44 +940,48 @@
                     showScreen('endScreen');
                 }
             } else {
+                // Wrong - doesn't match any unanswered question
                 msg.className = "msg bad";
-                msg.textContent = "❌ INCORRECT";
+                msg.textContent = "❌ לא נכון";
                 setTimeout(() => { msg.textContent = ""; }, 1500);
+
+                // Broadcast wrong attempt
+                gameManager.broadcastAction({
+                    type: 'answer_attempt',
+                    text: val,
+                    isCorrect: false
+                });
             }
         }
 
-        function updatePuzzleUI() {
-            const q = allQuestions[qIndex];
-            const msg = document.getElementById('msg');
-            const inputEl = document.getElementById('answerInput');
+        // Update the progress indicator showing completed/total
+        function updateProgressIndicator() {
+            const indicator = document.getElementById('progressIndicator');
+            indicator.innerHTML = '';
 
-            msg.textContent = "";
-            document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
-            msg.textContent = "";
-            document.getElementById('qTitle').textContent = `PUZZLE ${qIndex + 1}`;
+            allQuestions.forEach((q, index) => {
+                const dot = document.createElement('div');
+                dot.style.cssText = `
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    transition: all 0.3s var(--spring);
+                `;
 
-            // HINT SYSTEM: Show "next" from previous question
-            let hintText = "";
-            if (qIndex === 0) {
-                hintText = "Welcome aboard! Solve the first puzzle.";
-            } else {
-                // Get 'next' from the *previous* question (qIndex - 1)
-                const prevQ = allQuestions[qIndex - 1];
-                if (prevQ && prevQ.next) {
-                    hintText = `Hint: ${prevQ.next}`;
+                if (answeredQuestions.has(index)) {
+                    dot.style.background = 'var(--success)';
+                    dot.style.boxShadow = '0 0 8px var(--success)';
                 } else {
-                    hintText = "Proceed to the next challenge.";
+                    dot.style.background = 'rgba(255, 255, 255, 0.2)';
+                    dot.style.border = '1px solid rgba(255, 255, 255, 0.3)';
                 }
-            }
-            document.getElementById('qDesc').textContent = hintText;
 
-            inputEl.value = "";
+                indicator.appendChild(dot);
+            });
 
-            // Re-trigger animation
-            const card = document.getElementById('puzzleCard');
-            card.classList.remove('animate-bounce-up');
-            void card.offsetWidth; // trigger reflow
-            card.classList.add('animate-bounce-up');
+            // Update title with progress
+            document.getElementById('qTitle').textContent = `${answeredQuestions.size}/${allQuestions.length} חידות`;
+            document.getElementById('qDesc').textContent = 'הקלד תשובה לכל חידה - המערכת תבדוק אוטומטית!';
         }
 
         let timerInterval;
@@ -928,20 +1003,27 @@
             document.getElementById(id).classList.add('active');
 
             if (id === 'puzzleScreen') {
-                if (allQuestions[qIndex]) updatePuzzleUI();
-                if (!timerInterval) timerInterval = setInterval(updateStopwatch, 18000);
+                updateProgressIndicator();
+                document.getElementById('answerInput').focus();
+                if (!timerInterval) timerInterval = setInterval(updateStopwatch, 1000);
             }
 
             if (id === 'endScreen') {
                 if (timerInterval) clearInterval(timerInterval);
                 const finalTime = updateStopwatch();
-                document.getElementById('finalTimeDisplay').innerText = `YOUR TIME: ${finalTime}`;
+                document.getElementById('finalTimeDisplay').innerText = `הזמן שלך: ${finalTime}`;
             }
         }
 
         // Handle Enter key
         document.getElementById('answerInput').addEventListener('keypress', e => {
             if (e.key === 'Enter') handleCheck();
+        });
+
+        // Disable English letters - allow only numbers and Hebrew
+        document.getElementById('answerInput').addEventListener('input', e => {
+            // Remove English letters (a-z, A-Z) but keep numbers and Hebrew
+            e.target.value = e.target.value.replace(/[a-zA-Z]/g, '');
         });
 
         // Podium Logic (Adapted for Player View)
@@ -991,13 +1073,13 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = `pedestal-wrapper rank-${rank}`;
 
-                const groupName = (g.id === 'Unassigned') ? 'Freelancers' : `GROUP ${g.id}`;
+                const groupName = (g.id === 'Unassigned') ? 'עצמאיים' : `קבוצה ${g.id}`;
                 const initial = (g.id === 'Unassigned') ? '?' : g.id;
 
                 wrapper.innerHTML = `
                     <div class="player-info">
                         <div class="player-name">${groupName}</div>
-                        <div class="player-score">${g.score} PTS</div>
+                        <div class="player-score">${g.score} נקודות</div>
                     </div>
                     
                     <div class="avatar-glow" style="color: currentColor">
@@ -1050,7 +1132,7 @@
             const leader = sorted[0];
 
             if (leader && leader.score > 0) {
-                const name = leader.id === 'Unassigned' ? 'FREE' : `G${leader.id}`;
+                const name = leader.id === 'Unassigned' ? 'עצמאיים' : `ק${leader.id}`;
                 textEl.innerText = `${name} (${leader.score})`;
                 indicator.classList.add('show');
             } else {

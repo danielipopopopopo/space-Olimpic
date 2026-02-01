@@ -1,1 +1,80 @@
-<iframe src="https://gamma.app/embed/qbwz29zbshh12yh" style="width: 1400px; max-width: 100%; height: 700px" allow="fullscreen" title="תוכנית ארטמיס"></iframe>
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>תוכנית ארטמיס - מצגת</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            background: linear-gradient(135deg, #030510 0%, #0a1628 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .iframe-container {
+            width: 100%;
+            max-width: 1400px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        iframe {
+            width: 100%;
+            height: 700px;
+            border: none;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #00d4ff 0%, #a855f7 100%);
+            color: #030510;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Heebo', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🚀 תוכנית ארטמיס</h1>
+    <div class="iframe-container">
+        <iframe src="https://gamma.app/embed/qbwz29zbshh12yh" allow="fullscreen" title="תוכנית ארטמיס"></iframe>
+    </div>
+    <a href="index.htm" class="back-btn">← חזרה לדף הבית</a>
+</body>
+
+</html>

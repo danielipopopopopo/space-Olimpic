@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Olimpic - Mission Control</title>
+    <title>אולימפיאדת החלל - מרכז שליטה</title>
 
     <!-- Fonts -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;800;900&family=Inter:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap"
         rel="stylesheet">
 
     <!-- Libraries -->
@@ -30,7 +30,7 @@
             margin: 0;
             background: radial-gradient(ellipse at 50% 0%, #0a1628 0%, var(--bg-deep) 60%);
             color: white;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Heebo', 'Inter', sans-serif;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -515,35 +515,35 @@
 
     <!-- Lobby View -->
     <div id="lobbyView">
-        <h1 style="font-family: 'Orbitron'; margin-bottom: 20px; letter-spacing: 1rem;">MISSION CONTROL</h1>
+        <h1 style="font-family: 'Heebo', 'Orbitron'; margin-bottom: 20px; letter-spacing: 0.5rem;">מרכז שליטה</h1>
         <div class="join-card">
             <div class="qr-grid">
                 <div class="qr-group">
-                    <h4>GROUP 1</h4>
+                    <h4>קבוצה 1</h4>
                     <div class="qr-box" id="qr1"></div>
                 </div>
                 <div class="qr-group">
-                    <h4>GROUP 2</h4>
+                    <h4>קבוצה 2</h4>
                     <div class="qr-box" id="qr2"></div>
                 </div>
                 <div class="qr-group">
-                    <h4>GROUP 3</h4>
+                    <h4>קבוצה 3</h4>
                     <div class="qr-box" id="qr3"></div>
                 </div>
                 <div class="qr-group">
-                    <h4>GROUP 4</h4>
+                    <h4>קבוצה 4</h4>
                     <div class="qr-box" id="qr4"></div>
                 </div>
             </div>
             <div class="room-info">
-                <p>JOIN WITH CODE</p>
+                <p>הצטרפו עם קוד</p>
                 <h1 id="roomCodeDisplay">...</h1>
             </div>
         </div>
 
-        <h3 style="margin-top: 40px; opacity: 0.7; font-family: 'Orbitron';">READY CREW MEMBERS</h3>
+        <h3 style="margin-top: 40px; opacity: 0.7; font-family: 'Heebo';">צוות מוכן</h3>
         <div id="playersList"></div>
-        <button onclick="startGame()">LAUNCH MISSION 🚀</button>
+        <button onclick="startGame()">התחל משימה 🚀</button>
     </div>
 
     <!-- Game View -->
@@ -555,33 +555,33 @@
             style="font-family: 'Orbitron'; font-size: 2rem; color: var(--accent); margin-bottom: 5px; text-shadow: 0 0 10px var(--accent-glow);">
             00:00.0</div>
 
-        <h1 style="font-family: 'Orbitron'; margin-bottom: 10px;">MISSION STATUS</h1>
+        <h1 style="font-family: 'Heebo', 'Orbitron'; margin-bottom: 10px;">מצב משימה</h1>
         <div class="leaderboard-container">
             <table class="leaderboard-table">
                 <thead>
                     <tr>
-                        <th style="width: 30%;">CREW MEMBER</th>
-                        <th style="width: 60%;">PROGRESS</th>
-                        <th style="width: 10%;">SCORE</th>
+                        <th style="width: 30%;">שם שחקן</th>
+                        <th style="width: 60%;">התקדמות</th>
+                        <th style="width: 10%;">ניקוד</th>
                     </tr>
                 </thead>
                 <tbody id="leaderboardBody"></tbody>
             </table>
         </div>
 
-        <button class="btn-end" onclick="finishGame()">COMPLETE MISSION 🏁</button>
+        <button class="btn-end" onclick="finishGame()">סיים משימה 🏁</button>
     </div>
 
     <!-- Podium View -->
     <div id="podiumView">
-        <h1 style="font-family: 'Orbitron'; font-size: 3rem; margin-bottom: 10px;">MISSION ACCOMPLISHED</h1>
-        <p style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 40px;">TOP AGENTS</p>
+        <h1 style="font-family: 'Heebo', 'Orbitron'; font-size: 3rem; margin-bottom: 10px;">המשימה הושלמה!</h1>
+        <p style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 40px;">הקבוצות המובילות</p>
 
         <div class="podium-container" id="podiumContainer">
             <!-- Will be populated by JS -->
         </div>
 
-        <button onclick="location.reload()" style="margin-top: 50px;">NEW MISSION</button>
+        <button onclick="location.reload()" style="margin-top: 50px;">משימה חדשה</button>
     </div>
 
     <script src="firebase-config.js"></script>
@@ -590,7 +590,7 @@
 
     <script>
         let connectedPlayers = {};
-        const totalPuzzles = 10;
+        const totalPuzzles = 7;
 
         async function initHost() {
             const params = new URLSearchParams(window.location.search);
@@ -617,8 +617,8 @@
                 if (action.type === 'answer_attempt') {
                     // createBubble(action); // Disabled as per request
                 } else if (action.type === 'player_finished') {
-                    const groupInfo = action.group ? ` from Group ${action.group}` : '';
-                    showSplashAlert(`🏆 ${action.name}${groupInfo} WON! 🏆`);
+                    const groupInfo = action.group ? ` מקבוצה ${action.group}` : '';
+                    showSplashAlert(`🏆 ${action.name}${groupInfo} ניצח! 🏆`);
                 }
             });
         }
@@ -633,7 +633,7 @@
                 badge.className = 'player-badge';
                 badge.innerHTML = `
                     ${p.name}
-                    ${p.group ? `<span class="group-tag">G${p.group}</span>` : ''}
+                    ${p.group ? `<span class="group-tag">ק${p.group}</span>` : ''}
                 `;
                 list.appendChild(badge);
             });
@@ -651,7 +651,7 @@
                 row.innerHTML = `
                     <td style="font-weight: 700;">
                         ${p.name} ${p.isFinished ? '✅' : ''}
-                        ${p.group ? `<br><small style="color: var(--accent); opacity: 0.6;">Group ${p.group}</small>` : ''}
+                        ${p.group ? `<br><small style="color: var(--accent); opacity: 0.6;">קבוצה ${p.group}</small>` : ''}
                     </td>
                     <td>
                         <div class="progress-bg">
@@ -715,7 +715,7 @@
 
             // Wait a moment for confetti then show podium
             setTimeout(() => {
-                showSplashAlert("CALCULATING RESULTS...");
+                showSplashAlert("מחשב תוצאות...");
 
                 setTimeout(() => {
                     displayPodium();
@@ -774,13 +774,13 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = `pedestal-wrapper rank-${rank}`;
 
-                const groupName = (g.id === 'Unassigned') ? 'Freelancers' : `GROUP ${g.id}`;
+                const groupName = (g.id === 'Unassigned') ? 'עצמאיים' : `קבוצה ${g.id}`;
                 const initial = (g.id === 'Unassigned') ? '?' : g.id;
 
                 wrapper.innerHTML = `
                     <div class="player-info">
                         <div class="player-name">${groupName}</div>
-                        <div class="player-score">${g.score} PTS</div>
+                        <div class="player-score">${g.score} נקודות</div>
                     </div>
                     
                     <div class="avatar-glow" style="color: currentColor">
