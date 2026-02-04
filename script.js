@@ -190,7 +190,7 @@ function updateProgressBoard() {
         const progress = ((p.completedCount || 0) / totalPuzzles) * 100;
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td style="font-weight: 700;">
+            <td style="font-weight: 1800;">
                 ${p.name} ${p.isFinished ? '✅' : ''}
                 ${p.group ? `<br><small style="color: var(--accent); opacity: 0.6;">קבוצה ${p.group}</small>` : ''}
             </td>
@@ -389,7 +389,7 @@ async function joinGame() {
     const codeInput = document.getElementById('codeInput');
     const name = nameInput.value.trim();
     const code = codeInput.value.trim();
-    
+
     if (!name || !code) return alert("חסר מידע!");
 
     const blockedPatterns = ['גלי', 'gali', 'גלגול', 'גליה', 'גל', 'gal', 'גליוש'];
@@ -449,7 +449,7 @@ async function joinGame() {
                         gameManager.updateProgress(playerAnsweredQuestions.size, playerScore);
 
                         if (playerAnsweredQuestions.size < allQuestions.length) {
-                             updateProgressIndicator();
+                            updateProgressIndicator();
                         } else {
                             gameManager.setPlayerFinished();
                             showPlayerScreen('endScreen');
@@ -474,7 +474,7 @@ function showSocialSplash(html) {
     if (!alert) return;
     alert.innerHTML = html;
     alert.classList.remove('show');
-    void alert.offsetWidth; 
+    void alert.offsetWidth;
     alert.classList.add('show');
 }
 
@@ -535,7 +535,7 @@ function updateProgressIndicator() {
     const indicator = document.getElementById('progressIndicator');
     if (!indicator) return;
     indicator.innerHTML = '';
-    
+
     allQuestions.forEach((q, index) => {
         const dot = document.createElement('div');
         dot.style.cssText = `width: 12px; height: 12px; border-radius: 50%; transition: all 0.3s var(--spring);`;
@@ -641,7 +641,7 @@ function displayPlayerPodium() {
 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     if (podiumView) {
-        podiumView.style.display = 'flex'; 
+        podiumView.style.display = 'flex';
         podiumView.classList.add('active');
     }
 
